@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+ <script language="javascript">
+
+	function init(){
+ 	p1.innerHTML=navigator.userAgent;
+ 	}
+
+  function diplayJavaMsg(msg){
+
+  alert(msg);
+
+  }
+
+  function callTojavaFn(){
+
+  var msg = "Calling from Java Script";
+
+  Android.jsFnCall(msg);
+
+  }
+
+  </script>
+
+</head>
+
+<body onload="init()" style="border:5px solid #000000;">
+<p id='p1'>un-init</p>
+
+<input type="button" onClick="callTojavaFn()" value="Call Java Fn">
+
+</body>
+
+</html>
