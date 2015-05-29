@@ -8,8 +8,8 @@ android {
         applicationId "spicesoft.monolith"
         minSdkVersion 17
         targetSdkVersion 18
-        versionCode 1
-        versionName "1.0"
+        versionCode 3
+        versionName "Chicken fucker"
     }
     buildTypes {
         release {

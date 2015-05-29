@@ -35,7 +35,7 @@ public class WebViewTool {
         mWebView.getSettings().setAllowFileAccess(true);
         mWebView.getSettings().setAppCacheEnabled(true);
         mWebView.addJavascriptInterface(mJsHandler, JsHandlerName);
-        mWebView.getSettings().setUserAgentString(userAgent);
+        mWebView.getSettings().setUserAgentString(mWebView.getSettings().getUserAgentString() + userAgent);
         mWebView.setWebChromeClient(new WebChromeClient());
         mWebView.setWebViewClient(new WebViewClient() {
 

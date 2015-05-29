@@ -6,9 +6,9 @@ android {
 
     defaultConfig {
         applicationId "spicesoft.autoupdater"
-        minSdkVersion 21
-        targetSdkVersion 22
-        versionCode 1
+        minSdkVersion 17
+        targetSdkVersion 18
+        versionCode 3
         versionName "1.0"
     }
     buildTypes {

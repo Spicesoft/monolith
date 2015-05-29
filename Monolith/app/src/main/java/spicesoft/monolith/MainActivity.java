@@ -12,12 +12,13 @@ import android.webkit.WebView;
 import spicesoft.monolith.KisokMode.KioskModeNfcActivity;
 import spicesoft.monolith.utils.AndroidUtils;
 import spicesoft.monolith.utils.WebViewTool;
-import spicesoft.tandoori.R;
 
 
 /**
  * Main activity
- *
+ * This activity is started right after Android's done booting.
+ * It displays a wifiSetup activity if the tablet isn't connected to a wifi network.
+ * Otherwise it display a fullscreen WebView
  * @author Vincent Dudek
  */
 public class MainActivity extends KioskModeNfcActivity {
@@ -25,7 +26,7 @@ public class MainActivity extends KioskModeNfcActivity {
     private boolean DEBUG = true;
     public static final String TAG = "MainActivity";
     public static final String UPDATER_SERVICE = "spicesoft.autoupdater";
-    public static final long DISCONNECT_TIMEOUT = 10000; // 10sec
+    public static final long DISCONNECT_TIMEOUT = 10000; // 10 * 1000ms before user_inactivity timeout
     public static final String PREFS_NAME = "spicesoft.monolith";
 
     public SharedPreferences settings;
