@@ -74,7 +74,6 @@ public class UpdaterActivity extends Activity implements AsyncResponse {
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
 
 
-
         urlpath = baseUrl + ApkName;
 
         //getInstallPackageVersionInfo(AppName);

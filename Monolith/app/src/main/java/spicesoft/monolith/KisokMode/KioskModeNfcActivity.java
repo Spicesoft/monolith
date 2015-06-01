@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.widget.Toast;
 
+import spicesoft.monolith.JsHandler;
 import spicesoft.monolith.NFC.HexDump;
 import spicesoft.monolith.NFC.NFCTool;
 
@@ -70,6 +71,7 @@ public class KioskModeNfcActivity extends KioskModeActivity {
             /*
                     NFC Tag Discovered !
              */
+
 
             if (DEBUG) Log.d(TAG, "Size : " + tag.getId().length +
                     "Tag ID : " + HexDump.dumpHexString(tag.getId()) +
