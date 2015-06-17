@@ -104,19 +104,7 @@ echo "Delete SuperSU.apk and keep root access "
 echo "This will allow installed app to get root access without SuperSU prompt ."
 echo 
 echo -n "?"
-read delete_supersu_apk
-
-
-if [ "$delete_supersu_apk" == "y" ]
-then
-  mkdir ../supersu
-  cp ../../tools/SuperSU-Embed/supersu_silent/supersu.zip ../supersu
-else
-  mkdir ../supersu
-  cp ../../tools/SuperSU-Embed/supersu/supersu.zip ../supersu
-  cat ../../tools/SuperSU-Embed/append_to_updater_script >> ../META-INF/com/google/android/updater-script
-  echo -en '\n' >> ../META-INF/com/google/android/updater-script
-fi
+read silent_root
 
 
 if [ "$cat ../META-INF/com/google/android/updater-script | grep 'supersu' " != "" ]
@@ -127,6 +115,21 @@ cat tmp > ../META-INF/com/google/android/updater-script
 rm tmp
 
 fi
+
+
+if [ "$silent_root" == "y" ]
+then
+  mkdir ../supersu
+  cp ../../tools/SuperSU-Embed/supersu_silent/supersu.zip ../supersu
+  cat ../../tools/SuperSU-Embed/append_to_updater_script >> ../META-INF/com/google/android/updater-script
+  echo -en '\n' >> ../META-INF/com/google/android/updater-script
+else
+  mkdir ../supersu
+  cp ../../tools/SuperSU-Embed/supersu/supersu.zip ../supersu
+  cat ../../tools/SuperSU-Embed/append_to_updater_script >> ../META-INF/com/google/android/updater-script
+  echo -en '\n' >> ../META-INF/com/google/android/updater-script
+fi
+
 
 echo "SuperSU successfully installed !"
 
