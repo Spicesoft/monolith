@@ -1,0 +1,17 @@
+
+if [ -d WORKING_DIR ] 
+	then
+	cd WORKING_DIR
+	if [ -d system_mount/priv-app ]
+		then
+		rm -rf system_mount/priv-app/*Wizard* #The wizard apk name is CMWizard, or SetupWizard, depending on android versions
+
+	else 
+		echo "Please mount System first..."
+		scripts/press_enter
+	fi
+	cd ..
+else
+	echo "Working directory not found"
+	scripts/press_enter
+fi

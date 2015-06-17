@@ -1,0 +1,37 @@
+if [ ! -d WORKING_* ]
+then
+  echo "No working folder found!"
+  scripts/press_enter
+  exit 0
+fi
+
+cd WORKING_DIR
+
+if [ ! -d system_mount ]
+then
+  echo "No system folder found!"
+  cd ..
+  scripts/press_enter
+  exit 0
+fi
+cd system_mount
+
+if [ ! -e build.prop ]
+then
+  echo "Error: build.prop not found!"
+  cd ../..
+  scripts/press_enter
+  exit 0
+fi
+
+
+if [ "$cat build.prop | grep 'qemu.hw.mainkeys = 1' " != "" ]
+  then
+sed '/qemu.hw.mainkeys = 1/d' build.prop > tmp
+cat tmp > build.prop
+rm tmp
+
+fi
+echo "qemu.hw.mainkeys = 1" >> build.prop
+
+cd ../..

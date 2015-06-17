@@ -1,0 +1,11 @@
+ui_print("Installing ROM ...");
+
+# ... all the lines that install your ROM ...
+run_program("/sbin/busybox", "sleep", "5");
+
+# last thing the script should do
+ui_print("Installing SuperSU ...");
+package_extract_dir("supersu", "/tmp/supersu");
+run_program("/sbin/busybox", "unzip", "/tmp/supersu/supersu.zip", "META-INF/com/google/android/*", "-d", "/tmp/supersu");
+run_program("/sbin/busybox", "sh", "/tmp/supersu/META-INF/com/google/android/update-binary", "dummy", "1", "/tmp/supersu/supersu.zip");
+ui_print("SuperSU installed");

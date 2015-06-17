@@ -2,9 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="spicesoft.monolith"
     android:versionCode="2"
-    android:versionName="1.1"
-    >
-
+    android:versionName="1.1" >
 
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
@@ -15,36 +13,46 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
+    <uses-permission android:name="android.permission.SET_ALARM" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO"/>
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS"/>
 
     <uses-feature
         android:name="android.hardware.nfc"
         android:required="true" />
 
-
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
-        android:theme="@style/AppTheme" >
-        <activity
-            android:name="spicesoft.monolith.MainActivity"
-            android:label="@string/app_name" >
+        android:theme="@style/AppTheme"
+        android:hardwareAccelerated="true">
 
+
+        <activity
+            android:name=".MainActivity"
+            android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
 
             <!-- Define the app as a launcher: open the app when the HOME button is pressed -->
 
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.HOME" />
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
+            <receiver
+                android:name=".Receiver.BootReceiver">
+                <intent-filter>
+                    <action android:name="android.intent.action.BOOT_COMPLETED" />
+                    <action android:name="android.intent.action.QUICKBOOT_POWERON" />
+                    <category android:name="android.intent.category.DEFAULT" />
+                </intent-filter>
+            </receiver>
+
 
             <intent-filter>
                 <action android:name="android.nfc.action.TAG_DISCOVERED" />
+
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
 
@@ -55,20 +63,7 @@
 
 
         <receiver
-            android:name="spicesoft.monolith.Receiver.BootReceiver"
-            android:description="@string/boot_receiver_description"
-            android:label="@string/boot_receiver_label"
-            android:permission="android.permission.RECEIVE_BOOT_COMPLETED" >
-            <intent-filter>
-                <action android:name="android.intent.action.BOOT_COMPLETED" />
-
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </receiver>
-
-
-        <receiver
-            android:name="spicesoft.monolith.Receiver.BasicDeviceAdminReceiver"
+            android:name=".Receiver.BasicDeviceAdminReceiver"
             android:description="@string/admin_permission_description"
             android:label="@string/admin_permission_label"
             android:permission="android.permission.BIND_DEVICE_ADMIN" >
@@ -80,6 +75,11 @@
                 <action android:name="android.app.action.DEVICE_ADMIN_ENABLED" />
             </intent-filter>
         </receiver>
+
+        <receiver android:name=".Receiver.UpdateAlarmReceiver" />
+        <receiver android:name=".Receiver.HibernateAlarmReceiver" />
+        <receiver android:name=".Receiver.WakeUpReceiver"/>
+
 
     </application>
 

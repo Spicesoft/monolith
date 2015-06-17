@@ -6,10 +6,10 @@ android {
 
     defaultConfig {
         applicationId "spicesoft.monolith"
-        minSdkVersion 17
-        targetSdkVersion 18
-        versionCode 3
-        versionName "Chicken fucker"
+        minSdkVersion 21
+        targetSdkVersion 21
+        versionCode 1
+        versionName "1.0"
     }
     buildTypes {
         release {

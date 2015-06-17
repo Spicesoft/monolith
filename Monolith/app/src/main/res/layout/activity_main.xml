@@ -2,7 +2,6 @@
     xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".MainActivity"
-    android:keepScreenOn="true"
     android:id="@+id/layout">
 
     <TextView
@@ -13,7 +12,6 @@
         android:layout_width="wrap_content"
         android:id="@+id/textView_explanation"
     />
-
 
     <WebView
         android:id="@+id/web_content"

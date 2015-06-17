@@ -1,0 +1,21 @@
+
+echo
+
+if [ -d WORKING_DIR ]
+then
+  echo Found working folder
+  cd WORKING_DIR
+
+if ls -1 system_mount/* >/dev/null 2>&1
+  then
+    cp -R ../install_apk/. system_mount/app/
+    echo "APKs added to the ROM"
+
+  else
+  	echo "Please mount system img first ..."
+  fi
+
+else
+  echo No working folder found!
+  exit 0
+fi

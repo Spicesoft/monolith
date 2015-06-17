@@ -34,9 +34,9 @@ public class NFCTool {
             return;
         }
         if (!mNfcAdapter.isEnabled()) {
-            Toast.makeText(a, "NFC is disabled.", Toast.LENGTH_LONG).show();
+           // Toast.makeText(a, "NFC is disabled.", Toast.LENGTH_SHORT).show();
         } else {
-            Toast.makeText(a, "NFC is enabled.", Toast.LENGTH_LONG).show();
+            //Toast.makeText(a, "NFC is enabled.", Toast.LENGTH_SHORT).show();
         }
     }
 }

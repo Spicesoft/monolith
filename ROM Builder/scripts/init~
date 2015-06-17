@@ -1,0 +1,9 @@
+#!/bin/bash
+
+
+chmod +x tools/make_ext4fs
+chmod 755 tools/rimg2sdat
+chmod +x tools/sdat2img
+chmod 755 tools/simg2img
+
+chmod 755 -R scripts2/

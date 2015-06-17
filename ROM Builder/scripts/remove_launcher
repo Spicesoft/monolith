@@ -1,0 +1,32 @@
+
+if [ -d WORKING_DIR ] 
+	then
+	cd WORKING_DIR
+	if [ -d system_mount/priv-app ]
+		then
+
+		clear
+		echo "-----------------------------------------------------"
+		echo " You're about to delete the launcher app of the ROM"
+		echo "	 Make sure you install a launcher app later "
+		echo "-----------------------------------------------------"
+		echo " Are you ready to delete Trebuchet launcher ? (y/n default: n)" 
+		read delete_launcher
+
+		if [ "delete_launcher" == "y"]
+			then
+		rm -rf system_mount/priv-app/Trebuchet  # Works only for Cyanogenmod ROM that uses Trebuchet as launcher
+												# Other ROM might use GoogleNowLauncher or else...
+		echo "Trebuchet deleted from ROM"
+	fi
+
+	else 
+		echo "Please mount System first..."
+		scripts/press_enter
+	fi
+	cd ..
+else
+	echo "Working directory not found"
+	scripts/press_enter
+
+fi

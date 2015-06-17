@@ -1,0 +1,63 @@
+clear
+echo
+
+if [ -d WORKING_DIR ]
+then
+  echo Found working folder
+else
+  echo No working folder found!
+  exit 0
+fi
+
+cd WORKING_DIR
+
+if [ ! -d system_mount ]
+then
+  echo "No system folder found!"
+  cd ..
+  scripts/press_enter
+  exit 0
+fi
+cd system_mount
+
+if [ ! -d media ]
+then
+  echo "Error: system/media not found!"
+  cd ../..
+  scripts/press_enter
+  exit 0
+fi
+
+if [ ! -e build.prop ]
+then
+  echo "Error: system/build.prop not found!"
+  cd ../..
+  scripts/press_enter
+  exit 0
+fi
+
+cd ..
+
+../tools/make_ext4fs -T 0 -S file_contexts -l 1073741824 -a system system_new.img system_mount/
+
+../tools/rimg2sdat system_new.img
+
+echo "system succesfully packed."
+
+echo "Enter a name for your ROM (default : update.zip): "
+read zip_name
+
+if [ "$zip_name" == "" ]
+  then 
+  $zip_name = "update"
+fi
+
+echo "Creating $zip_name.zip file..."
+
+zip -r -y -q ../OUTPUT/$zip_name * -x system_mount\* system.img
+
+echo "Done !"
+
+cd ..
+
+scripts/press_enter

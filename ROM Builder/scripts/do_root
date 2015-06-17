@@ -1,0 +1,140 @@
+
+if [ "$1" == "" ]
+then
+  clear
+fi
+
+
+echo
+echo "ROOTING"
+echo "--------------------------------------------"
+echo 
+echo "The following will be done for root:"
+echo
+echo "- Add Superuser app and su binary"
+echo "- Add necessary lines to the update-script"
+
+
+if [ ! -d WORKING_* ]
+then
+  echo "No working folder found!"
+  scripts/press_enter
+  exit 0
+fi
+
+cd WORKING_DIR
+
+if [ ! -d system_mount ]
+then
+  echo "No system folder found!"
+  cd ..
+  scripts/press_enter
+  exit 0
+fi
+
+cd system_mount
+
+if [ ! -e build.prop ]
+then
+  echo "Error: build.prop not found!"
+  cd ../..
+  scripts/press_enter
+  exit 0
+fi
+
+su_path=`find . -name su`
+super_path=`find . -iname Superuser.apk`
+super_su_exists=0
+
+
+if [ "$super_path" == "" ]
+then
+  super_path=`find . -iname SuperSU.apk`
+  if [ "$super_path" != "" ]
+  then
+    super_su_exists=1
+  fi
+fi
+
+if [ "$supersu_script" != "" ]
+  then
+  super_su_exists=1
+fi
+overwrite=0
+
+if [ "$su_path" != "" ] && [ "$super_path" != "" ] 
+then
+  echo "The /system folder contains $su_path and $super_path"
+  echo -n "Overwrite (y/n)? (default: n): "
+  read do_su
+
+  if [ "$do_su" != "y" ]
+  then
+    cd ../..
+    exit 0
+  else
+    overwrite=1
+    echo
+    echo
+  fi
+fi
+
+
+if [ "$overwrite" == "1" ]
+then
+  echo
+  echo "Overwriting old 'su' binary and Superuser app ..."
+  rm -fv $su_path
+  rm -fv $super_path
+fi
+
+
+if [ -d xbin ]
+then
+  echo Found /system/xbin
+else
+  echo Creating /system/xbin
+  mkdir xbin
+fi
+
+echo
+echo "---------------------------------------------------"
+echo "      Enable silent root (y/n, default n)? "
+echo "Delete SuperSU.apk and keep root access "
+echo "This will allow installed app to get root access without SuperSU prompt ."
+echo 
+echo -n "?"
+read delete_supersu_apk
+
+
+if [ "$delete_supersu_apk" == "y" ]
+then
+  mkdir ../supersu
+  cp ../../tools/SuperSU-Embed/supersu_silent/supersu.zip ../supersu
+else
+  mkdir ../supersu
+  cp ../../tools/SuperSU-Embed/supersu/supersu.zip ../supersu
+  cat ../../tools/SuperSU-Embed/append_to_updater_script >> ../META-INF/com/google/android/updater-script
+  echo -en '\n' >> ../META-INF/com/google/android/updater-script
+fi
+
+
+if [ "$cat ../META-INF/com/google/android/updater-script | grep 'supersu' " != "" ]
+  then
+sed '/supersu/d' ../META-INF/com/google/android/updater-script > tmp
+cat tmp > ../META-INF/com/google/android/updater-script
+
+rm tmp
+
+fi
+
+echo "SuperSU successfully installed !"
+
+cd ../..
+
+echo 
+echo "Finished rooting"
+echo
+
+scripts/press_enter
+

@@ -1,0 +1,88 @@
+#!/bin/bash
+
+
+version=1.0
+
+
+if [ ! -e menu ]
+then
+  echo
+  echo "Checking ROM tools..."
+  exit 0
+fi
+
+dir_list=( original_update scripts tools )
+
+for check_dir in ${dir_list[@]}
+do
+  if [ ! -e $check_dir ]
+  then
+    echo "Erreur : il manque des trucs mon gars ..."
+  fi
+done
+
+chmod 755 scripts/init
+scripts/init
+
+resize -s 30 100
+
+
+while :
+do
+
+  clear
+
+  echo 
+  echo "============================================================"
+  echo "             Android ROM Extract/Repack"
+  echo "============================================================"
+  echo 
+  echo "> MAIN MENU"
+  echo
+  echo "  1  - Set up working folder from ROM (Unpacking ROM + mount /system/ directory)"
+  echo "  2  - Add root permission + install SuperSU"
+  echo "  3  - Install APKs (apk from the install_apk folder will be installed on the ROM)"
+  echo "  4  - Remove ROM's launcher"
+  echo "  5  - Remove ROM's first boot wizard"
+  echo "  6  - disable SystemUI (NavigationBar and ActionBar won't show)"
+  echo "  7  - Add bootanimation.zip"
+  echo "  8  - Disable KeyGuard (Lockscreen)"
+  echo "  9  - Enable USB debug mode"
+  echo "  10 - Watch Star Wars"
+  echo "  11 - Sign ROM"
+  echo 
+  echo " 99 - Build ROM from working folder"
+  echo
+  echo "  x - Exit"
+  echo
+  echo 
+  echo -n "Enter option: "
+  read opt
+
+  
+  if [ "$?" != "1" ]
+  then
+    case $opt in
+      1) clear; scripts/check_rom; continue;;
+      2) scripts/do_root; continue;;
+      3) scripts/install_apk; continue;;
+      4) scripts/remove_launcher; continue;;
+      5) scripts/remove_wizard; continue;;
+      6) scripts/disable_systemui; continue;;
+      7) scripts/install_boot_animation; continue;;
+      8) scripts/disable_keyguard; continue;;
+      9) scripts/enable_debug; continue;;
+      10)telnet towel.blinkenlights.nl;;
+      11) sign_zip;;
+
+      99) scripts/build_rom;;
+      x) clear; echo; echo "Allez tchao !."; echo; exit 1;;
+      *) echo "Invalid option"; continue;;
+    esac
+  fi
+
+echo
+echo "Press Enter to continue"
+read enterKey  
+
+done

@@ -1,0 +1,24 @@
+assert(getprop("ro.product.device") == "flounder" || getprop("ro.build.product") == "flounder" || abort("This package is for device: flounder; this device is " + getprop("ro.product.device") + "."););
+ifelse(is_mounted("/system"), unmount("/system"));
+package_extract_dir("install", "/tmp/install");
+set_metadata_recursive("/tmp/install", "uid", 0, "gid", 0, "dmode", 0755, "fmode", 0644);
+set_metadata_recursive("/tmp/install/bin", "uid", 0, "gid", 0, "dmode", 0755, "fmode", 0755);
+mount("ext4", "EMMC", "/dev/block/platform/sdhci-tegra.3/by-name/APP", "/system", "");
+run_program("/tmp/install/bin/backuptool.sh", "backup");
+unmount("/system");
+if is_mounted("/data") then
+run_program("/tmp/install/bin/otasigcheck.sh") != "31744" || abort("Can't install this package on top of incompatible data. Please try another package or run a factory reset");
+else
+mount("ext4", "EMMC", "/dev/block/platform/sdhci-tegra.3/by-name/UDA", "/data", "");
+run_program("/tmp/install/bin/otasigcheck.sh") != "31744" || abort("Can't install this package on top of incompatible data. Please try another package or run a factory reset");
+unmount("/data");
+endif;
+show_progress(0.750000, 0);
+block_image_update("/dev/block/platform/sdhci-tegra.3/by-name/APP", package_extract_file("system.transfer.list"), "system.new.dat", "system.patch.dat");
+show_progress(0.020000, 10);
+mount("ext4", "EMMC", "/dev/block/platform/sdhci-tegra.3/by-name/APP", "/system", "");
+run_program("/tmp/install/bin/backuptool.sh", "restore");
+unmount("/system");
+show_progress(0.050000, 5);
+package_extract_file("boot.img", "/dev/block/platform/sdhci-tegra.3/by-name/LNX");
+show_progress(0.200000, 10);

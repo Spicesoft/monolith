@@ -1,0 +1,16 @@
+<resources>
+    <string name="app_name">AutoUpdater</string>
+    <string name="title_activity_alarm_setter">Tandoori updater</string>
+
+    <string name="action_settings">Settings</string>
+    <string name="update_button">Install / Update Dirty Tandoori now</string>
+    <string name="enable_auto_update_button">Enable automatic update</string>
+    <string name="disable_auto_update_button">Disable automatic update</string>
+    <string name="title_activity_recyler_view">recylerViewActivity</string>
+
+    <string name="boot_receiver_label">AutoStart</string>
+    <string name="boot_receiver_description">Ability to start the MainActivity automatically after Android boot</string>
+
+    <string name="title_activity_activity_list">ActivityList</string>
+    <string name="updating">Monolith is updating...</string>
+</resources>

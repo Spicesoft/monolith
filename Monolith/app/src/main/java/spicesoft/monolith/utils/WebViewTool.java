@@ -1,7 +1,12 @@
 package spicesoft.monolith.utils;
 
+import android.annotation.TargetApi;
+import android.app.Activity;
 import android.graphics.Bitmap;
 import android.net.http.SslError;
+import android.os.Build;
+import android.util.Log;
+import android.webkit.PermissionRequest;
 import android.webkit.SslErrorHandler;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
@@ -23,6 +28,8 @@ public class WebViewTool {
 
     private static String DefaultUrl = "file:///android_asset/index.html";
 
+    public static Activity activity;
+
 
     /**
      * This method configure the WebView in order to work properly with the JsHandler.
@@ -35,8 +42,17 @@ public class WebViewTool {
         mWebView.getSettings().setAllowFileAccess(true);
         mWebView.getSettings().setAppCacheEnabled(true);
         mWebView.addJavascriptInterface(mJsHandler, JsHandlerName);
-        mWebView.getSettings().setUserAgentString(mWebView.getSettings().getUserAgentString() + userAgent);
-        mWebView.setWebChromeClient(new WebChromeClient());
+        mWebView.getSettings().setUserAgentString(mWebView.getSettings().getUserAgentString() + " " + userAgent);
+
+        mWebView.setWebChromeClient(new WebChromeClient() {
+            public void onPermissionRequest(final PermissionRequest request) {
+                Log.d(TAG, "onPermissionRequest");
+                request.grant(request.getResources());
+            }
+        });
+
+        mWebView.getSettings().setPluginState(WebSettings.PluginState.ON_DEMAND);
+
         mWebView.setWebViewClient(new WebViewClient() {
 
             @Override
@@ -44,6 +60,7 @@ public class WebViewTool {
                 super.onPageStarted(view, url, favicon);
 
             }
+
             @Override
             public void onPageFinished(WebView view, String url) {
                 super.onPageFinished(view, url);
@@ -57,10 +74,12 @@ public class WebViewTool {
             }
         });
 
+
         mWebView.getSettings().setCacheMode(WebSettings.LOAD_NO_CACHE);
 
-        // load the page file that is kept in assets folder
-        mWebView.loadUrl(DefaultUrl);
-    }
+            // load the page file that is kept in assets folder
+            mWebView.loadUrl(DefaultUrl);
+        }
 
-}
+
+    }

@@ -1,0 +1,102 @@
+
+echo
+echo "CREATE WORKING FOLDER FOR ROM"
+echo "=============================="
+echo
+echo "Ensure there is at least one ROM under the 'original_update' folder!"
+echo "This script will erase file and directories in WORKING_DIR,"
+echo "press x and save the content of your WORKING_DIR before."
+echo
+echo "Press Enter to continue or x to abort"
+echo
+read proceed
+  
+if [ "$proceed" == "x" ]
+then
+  echo
+  echo "Cancelled"
+  exit 1
+fi
+
+  sudo umount WORKING_DIR/system_mount/
+
+  rm -rf WORKING_DIR
+  mkdir WORKING_DIR
+  mkdir WORKING_DIR/system_mount
+  mkdir OUTPUT
+
+
+  scripts/choose_rom $2
+  res=$?
+
+
+  if [ "$res" == "1" ] && [ "$2" == "kernel_only" ]
+  then
+    scripts/press_enter
+  fi
+
+  if [ `ls | grep -m 1 WORKING_` ] && [ "$res" != "1" ] && [ "$1" == "" ]
+  then
+
+    #
+    # Check for radio.img
+    #
+    echo
+    cd WORKING_DIR
+    if [ -e radio.img ]
+    then
+      echo
+      echo "NOTE: radio.img was found in the working folder. If you wish to"
+      echo "remove it, you may do so at any time before building the ROM."
+    else
+
+      if [ -e META-INF/com/google/android/update-script ]
+      then
+        cd ..
+        #scripts/update_script_should_convert_back ignore_msg
+        echo "UPDATE_SCRIPT Found"
+        res=$?
+        cd WORKING_DIR
+      fi
+    fi
+
+    if [ -e boot.img ] 
+    then
+      boot_found=yes
+    elif [ -e boot/zImage ] && [ -e boot/initrd.gz ]
+    then
+      boot_found=yes
+    else
+      boot_found=no
+    fi
+
+    if [ "$boot_found"=="yes" ]
+    then
+
+      #
+      # Prompt to show ROM info
+      # 
+
+      if [ "$1" == "" ]
+      then
+        cd ..
+        #scripts/prompt_show_rom_info
+      else
+        cd ..
+      fi
+
+    else
+      echo
+      echo "No boot image found!"
+      cd ..
+    fi
+  fi
+
+
+if [ "$1" == "" ]
+then
+  scripts/mount_system
+  scripts/press_enter
+fi
+
+exit $res
