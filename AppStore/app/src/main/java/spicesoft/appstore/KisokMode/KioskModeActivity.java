@@ -2,6 +2,7 @@ package spicesoft.appstore.KisokMode;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
+import android.app.KeyguardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
@@ -107,7 +108,6 @@ public class KioskModeActivity extends Activity {
      */
     public void disableKeyguard(){
         this.getWindow().addFlags(WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD); // Disable the lock screen
-        this.getWindow().addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED);
     }
 
 

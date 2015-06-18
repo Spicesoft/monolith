@@ -11,7 +11,7 @@ import android.widget.TextView;
 import java.util.List;
 
 import spicesoft.appstore.Model.App;
-import spicesoft.autoupdater.R;
+import spicesoft.appstore.R;
 
 /**
  * Created by Vincent on 08/06/15.

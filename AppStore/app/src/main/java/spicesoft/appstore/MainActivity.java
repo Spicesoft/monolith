@@ -15,6 +15,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
 import android.view.View;
+import android.webkit.WebView;
 import android.widget.AdapterView;
 import android.widget.GridView;
 import android.widget.TextView;
@@ -32,7 +33,9 @@ import spicesoft.appstore.AsyncTasks.getAvailableAppsFromServer;
 import spicesoft.appstore.KisokMode.KioskModeNfcActivity;
 import spicesoft.appstore.Model.App;
 import spicesoft.appstore.NFC.NfcResponse;
-import spicesoft.autoupdater.R;
+import spicesoft.appstore.util.JsHandler;
+import spicesoft.appstore.util.WebViewTool;
+import spicesoft.appstore.R;
 
 
 public class MainActivity extends KioskModeNfcActivity implements AsyncResponse, NfcResponse{
@@ -46,6 +49,7 @@ public class MainActivity extends KioskModeNfcActivity implements AsyncResponse,
      */
     private static final String baseUrl = "http://4ltrophyece.fr/tandoori/";
 
+    private WebView mWebView;
 
     private App application = new App();
 
@@ -59,6 +63,12 @@ public class MainActivity extends KioskModeNfcActivity implements AsyncResponse,
      */
     private static final String downloadDirectory = "/Download/updates/";
 
+
+    /**
+     *
+     */
+
+    private static final String DefaultURL = "";
 
     private InstallDownloadedApp InstallApp;
     private ApkDownloader DlUpdate;
@@ -95,6 +105,10 @@ public class MainActivity extends KioskModeNfcActivity implements AsyncResponse,
 
         enableFullKioskMode();
 
+
+        mWebView = (WebView) findViewById(R.id.web_content);
+        mWebView.getSettings().setUserAgentString("COWORK");
+
     }
 
 
@@ -119,7 +133,9 @@ public class MainActivity extends KioskModeNfcActivity implements AsyncResponse,
             intent.putExtra("wifi_enable_next_on_connect", true);
             startActivityForResult(intent, 1);
         }else{
-            refreshAppStore();
+            //refreshAppStore();
+            //mWebView.loadUrl(DefaultURL);
+            mWebView.loadUrl("file:///android_asset/index.html");
         }
     }
 

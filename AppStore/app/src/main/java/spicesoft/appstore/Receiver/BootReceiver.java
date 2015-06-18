@@ -20,8 +20,6 @@ public class BootReceiver extends BroadcastReceiver {
          * This method receives the boot intent and launches the MainActivity
          */
 
-        for (int i = 0; i<50 ; i++)
-        Log.d("BootReceiver", "Boot Intent received ");
         Intent i = new Intent(context, MainActivity.class);
         i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 
