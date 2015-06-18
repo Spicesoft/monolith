@@ -10,17 +10,22 @@ import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.Uri;
 import android.net.wifi.WifiManager;
 import android.nfc.NfcAdapter;
 import android.nfc.Tag;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.util.Base64;
 import android.util.Log;
 import android.webkit.WebView;
 import android.widget.Toast;
 
+import org.json.JSONObject;
+
 import java.util.Calendar;
+import java.util.List;
 import java.util.Random;
 import java.util.TimeZone;
 
@@ -75,28 +80,41 @@ public class MainActivity extends KioskModeNfcActivity implements NfcResponse{
 
         enableFullKioskMode();
 
+        mWebView = (WebView) findViewById(R.id.web_content);
+        mJsHandler = new JsHandler(this, mWebView);
+        WebViewTool.init(mWebView, mJsHandler);
+
         ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo netInfo = cm.getActiveNetworkInfo();
 
         if(!(netInfo != null && netInfo.isConnectedOrConnecting())) {
-            //startActivity(new Intent(WifiManager.ACTION_PICK_WIFI_NETWORK));
-
             Intent intent = new Intent(WifiManager.ACTION_PICK_WIFI_NETWORK);
             intent.putExtra("extra_prefs_show_button_bar", true);
             intent.putExtra("wifi_enable_next_on_connect", true);
             startActivityForResult(intent, 1);
         }
 
-        if (WakeLockInstance.getInstance().getWl() == null) Toast.makeText(this, "NULL POINTER WAKELOCK", Toast.LENGTH_LONG).show();
-        else Toast.makeText(this, "WAKELOCK INSTANCIATED", Toast.LENGTH_LONG).show();
 
-        //AndroidUtils.launchWifiSetup(this);
 
-        mWebView = (WebView) findViewById(R.id.web_content);
-        mJsHandler = new JsHandler(this, mWebView);
-        WebViewTool.init(mWebView, mJsHandler);
+        try {
+            Uri data = getIntent().getData();
+            String scheme = data.getScheme(); // "cowork.app"
+            String host = data.getHost(); // "monolith"
+            List<String> params = data.getPathSegments();
+            String base64JSON = params.get(0); // Base64 encoded JSON
+            Log.d(TAG, "PARAMS => " + base64JSON);
+            byte[] decodedJSON = Base64.decode(base64JSON, Base64.DEFAULT);
+            String JSON = new String(decodedJSON, "UTF-8");
+            Log.d(TAG, "DECODED => " + JSON );
+            JSONObject jObject = new JSONObject(JSON);
+            String URL = jObject.getString("URL"); //get JSON value for "URL" key
+            mWebView.loadUrl(URL);
+        }
+        catch (Exception e){
+            mWebView.loadUrl("http://www.google.com");
+            e.printStackTrace();
+        }
 
-        mWebView.loadUrl(DefaultURL);
 
         /*
         Get the working hours of the center for the day, then call setWorkingHours methods from KioskModeActivity class.
@@ -128,6 +146,7 @@ public class MainActivity extends KioskModeNfcActivity implements NfcResponse{
         int jitterDelay = new Random().nextInt(MAX_JITTER); // Generate a random delay in [ 0 ; MAX_JITTER ]
 
         //setUpdateAlarm(updateTime, jitterDelay);
+
     }
 
 
@@ -269,18 +288,20 @@ public class MainActivity extends KioskModeNfcActivity implements NfcResponse{
 
         Tag tag = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
 
+        /*
         if(HexDump.dumpHexString(tag.getId()).equals("1A044481"))
         mWebView.loadUrl("http://14cb3f28.ngrok.com/webapps/concierge/");
 
         if(HexDump.dumpHexString(tag.getId()).equals("9A0BA447")) {
+        */
 
             Intent sIntent = new Intent("android.intent.action.MAIN");
-            sIntent.setComponent(ComponentName.unflattenFromString("spicesoft.autoupdater" + "/" + "spicesoft.autoupdater" + "." + "UpdaterActivity"));
-            sIntent.addCategory("android.intent.category.LAUNCHER");
-            sIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            sIntent.setComponent(ComponentName.unflattenFromString("spicesoft.appstore" + "/" + "spicesoft.appstore" + "." + "MainActivity"));
+        sIntent.addCategory("android.intent.category.LAUNCHER");
+        sIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             startActivity(sIntent);
 
-        }
+       // }
 
         Toast.makeText(this, "NFC TAG discovered !", Toast.LENGTH_LONG).show();
 
