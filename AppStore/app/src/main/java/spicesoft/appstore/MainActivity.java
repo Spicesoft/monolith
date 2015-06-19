@@ -2,9 +2,11 @@ package spicesoft.appstore;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.hardware.Sensor;
 import android.hardware.SensorManager;
@@ -14,35 +16,30 @@ import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
-import android.view.View;
 import android.webkit.WebView;
-import android.widget.AdapterView;
-import android.widget.GridView;
-import android.widget.TextView;
-import android.widget.Toast;
-
 import java.util.ArrayList;
 import java.util.List;
-
 import spicesoft.appstore.AsyncTasks.ApkDownloader;
 import spicesoft.appstore.AsyncTasks.AsyncResponse;
 import spicesoft.appstore.AsyncTasks.GetVersionFromServer;
 import spicesoft.appstore.AsyncTasks.InstallDownloadedApp;
+import spicesoft.appstore.AsyncTasks.RebootDevice;
+import spicesoft.appstore.AsyncTasks.SetDeviceOwner;
 import spicesoft.appstore.AsyncTasks.getAppInfoFromServer;
 import spicesoft.appstore.AsyncTasks.getAvailableAppsFromServer;
 import spicesoft.appstore.KisokMode.KioskModeNfcActivity;
 import spicesoft.appstore.Model.App;
 import spicesoft.appstore.NFC.NfcResponse;
-import spicesoft.appstore.util.JsHandler;
-import spicesoft.appstore.util.WebViewTool;
-import spicesoft.appstore.R;
+import spicesoft.appstore.Receiver.BasicDeviceAdminReceiver;
 
 
 public class MainActivity extends KioskModeNfcActivity implements AsyncResponse, NfcResponse{
 
-
     private static final boolean DEBUG = true;
     private static final String TAG = "MainActivity";
+
+
+    public static final String PREFS_NAME = "spicesoft.appstore";
 
     /**
      * Update server URL
@@ -64,17 +61,12 @@ public class MainActivity extends KioskModeNfcActivity implements AsyncResponse,
     private static final String downloadDirectory = "/Download/updates/";
 
 
-    /**
-     *
-     */
-
     private static final String DefaultURL = "";
 
     private InstallDownloadedApp InstallApp;
     private ApkDownloader DlUpdate;
     private LaunchApp launcher = new LaunchApp();
     private getAppInfoFromServer appinfo;
-
 
 
     static class PInfo {
@@ -93,9 +85,9 @@ public class MainActivity extends KioskModeNfcActivity implements AsyncResponse,
 
     private LaunchParam launchParam = new LaunchParam();
 
-
     public SensorManager sensorManager;
     public Sensor proximitySensor;
+
 
     /** Called when the activity is first created. */
     @Override
@@ -104,11 +96,8 @@ public class MainActivity extends KioskModeNfcActivity implements AsyncResponse,
         setContentView(R.layout.activity_updater_activity);
 
         enableFullKioskMode();
-
-
         mWebView = (WebView) findViewById(R.id.web_content);
         mWebView.getSettings().setUserAgentString("COWORK");
-
     }
 
 
@@ -120,23 +109,24 @@ public class MainActivity extends KioskModeNfcActivity implements AsyncResponse,
 
     @Override
     protected void onResume() {
-
         super.onResume();
 
         ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo netInfo = cm.getActiveNetworkInfo();
         if(!(netInfo != null && netInfo.isConnectedOrConnecting())) {
-            //startActivity(new Intent(WifiManager.ACTION_PICK_WIFI_NETWORK));
-
             Intent intent = new Intent(WifiManager.ACTION_PICK_WIFI_NETWORK);
             intent.putExtra("extra_prefs_show_button_bar", true);
             intent.putExtra("wifi_enable_next_on_connect", true);
             startActivityForResult(intent, 1);
+
         }else{
             //refreshAppStore();
             //mWebView.loadUrl(DefaultURL);
             mWebView.loadUrl("file:///android_asset/index.html");
         }
+
+        onFirstRun();
+        deviceOwnerConfig();
     }
 
 
@@ -271,10 +261,6 @@ public class MainActivity extends KioskModeNfcActivity implements AsyncResponse,
         launcher.execute(launchParam);
     }
 
-    public void rebootDevice(){
-
-
-    }
 
     public void uninstallApp(String packageName){
 
@@ -318,10 +304,7 @@ public class MainActivity extends KioskModeNfcActivity implements AsyncResponse,
     @Override
     public void postGetAvailableAppFromServerResult(List<String> appList) {
 
-        //GetAppInfoFromServer
-
         appinfo.execute(appList);
-
         Log.d(TAG, "Available apps received");
 
     }
@@ -329,62 +312,54 @@ public class MainActivity extends KioskModeNfcActivity implements AsyncResponse,
     @Override
     public void postGetAppInfoFromServerResult(List<App> app) {
 
-        final GridView gridView;
-
-
-        gridView = (GridView) findViewById(R.id.gridView1);
-
-        // Set custom adapter (GridAdapter) to gridview
-
-        gridView.setAdapter(new CustomGridAdapter(this, app));
-
-        gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-
-            public void onItemClick(AdapterView<?> parent, View v,
-                                    int position, long id) {
-
-                Toast.makeText(
-                        getApplicationContext(),
-                        ((TextView) v.findViewById(R.id.grid_item_label))
-                                .getText(), Toast.LENGTH_SHORT).show();
-
-                final App selectedApp = (App) gridView.getAdapter().getItem(position);
-                Log.d(TAG, "Selected App : \n" + selectedApp.toString());
-
-                application = selectedApp;
-
-                Log.d(TAG, "Selected app = " + selectedApp.pkgName + "  " + selectedApp.name);
-                if (isAppInstalled(selectedApp.pkgName ,selectedApp.name)){
-                    launchApp(application.pkgName, application.activityName);
-                }
-                else {
-
-                    AlertDialog.Builder builder = new AlertDialog.Builder(v.getContext());
-
-                    builder.setTitle("Installation d'application");
-
-                    builder.setMessage("Vous êtes sur le point d'installer " + selectedApp.name + ", souhaitez-vous continuer ?")
-                            .setPositiveButton("Continuer", new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog, int id) {
-                                    UpdateDownloaderInstance.getInstance().getDlUpdate().execute(selectedApp.downloadURL, selectedApp.apkName, downloadDirectory);
-                                }
-                            })
-                            .setNegativeButton("Annuler", new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog, int id) {
-                                    // User cancelled the dialog
-                                }
-                            });
-                    builder.create().show();
-
-                }
-
-            }
-        });
     }
 
 
     @Override
     public void NfcIntentReceived(Intent i) {
 
+    }
+
+    /**
+     * This method is executed on the very first run of the app.
+     * It will be used to set the tablet configurtion (e.g. center openning/closing hours, meeting room ID...)
+     */
+    public void onFirstRun(){
+
+        SharedPreferences settings;
+        settings = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+
+        if (settings.getBoolean("first_run", true)) {
+            if(DEBUG)Log.d(TAG, "First run");
+
+            settings.edit().putBoolean("first_run", false).commit();
+            settings.edit().putBoolean("config_done", false).commit();
+
+        }else{
+            if(DEBUG)Log.d(TAG, "Not first run");
+        }
+    }
+
+
+    public void deviceOwnerConfig(){
+
+        if(DEBUG)Log.d(TAG, "Check Config");
+
+        SharedPreferences settings;
+        settings = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+
+        if (settings.getBoolean("config_done", true)) {
+            //the app is being launched for first time, do something
+            if(DEBUG)Log.d(TAG, "config done");
+
+            startLockTask();
+
+
+        }else{
+            if(DEBUG)Log.d(TAG, "config not done");
+
+            new SetDeviceOwner(this).execute();
+
+        }
     }
 }

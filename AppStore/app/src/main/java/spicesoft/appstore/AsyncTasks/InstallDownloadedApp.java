@@ -4,6 +4,7 @@ import android.os.AsyncTask;
 import android.util.Log;
 
 import java.io.File;
+import java.io.IOException;
 
 /**
  * Async task that installs apk files using adb commands
@@ -34,7 +35,9 @@ public class InstallDownloadedApp extends AsyncTask<String, Void, Void> {
                 Process proc = Runtime.getRuntime().exec(new String[] { "su", "-c", command });
                 proc.waitFor();
                 if (DEBUG) Log.d(TAG, "Installation process: done");
-            } catch (Exception e) {
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (InterruptedException e) {
                 e.printStackTrace();
             }
         }

@@ -3,6 +3,8 @@ package spicesoft.appstore.KisokMode;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.KeyguardManager;
+import android.app.admin.DevicePolicyManager;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
@@ -20,6 +22,8 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+
+import spicesoft.appstore.Receiver.BasicDeviceAdminReceiver;
 
 
 /**
@@ -60,19 +64,17 @@ public class KioskModeActivity extends Activity {
         PowerManager.WakeLock partialWakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "Loneworker - PARTIAL WAKE LOCK");
         WakeLockInstance.getInstance().setWl(fullWakeLock);
         WakeLockInstance.getInstance().setPwl(partialWakeLock);
-
         WakeLockInstance.getInstance().getWl().acquire();
 
-        lockVolumeButtons(true);
+        lockVolumeButtons(false);
         disableKeyguard();
-        disableSound();
+        //disableSound();
         setOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
         enabled = true;
     }
 
 
     public  void disableFullKioskMode(){
-
         lockVolumeButtons(false);
         lockPowerButton(false);
         setOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
@@ -98,7 +100,6 @@ public class KioskModeActivity extends Activity {
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     public  void enableScreenPinning(Activity activity, boolean b){
-
         if(b) activity.startLockTask(); else activity.stopLockTask();
     }
 
@@ -108,8 +109,10 @@ public class KioskModeActivity extends Activity {
      */
     public void disableKeyguard(){
         this.getWindow().addFlags(WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD); // Disable the lock screen
+        KeyguardManager keyguardManager = (KeyguardManager)getSystemService(Activity.KEYGUARD_SERVICE);
+        KeyguardManager.KeyguardLock lock = keyguardManager.newKeyguardLock(KEYGUARD_SERVICE);
+        lock.disableKeyguard();
     }
-
 
 
     /**
@@ -143,10 +146,6 @@ public class KioskModeActivity extends Activity {
             else {
                 WakeLockInstance.getInstance().getWl().acquire();
             }
-
-            //powerManager  = (PowerManager) this.getSystemService(Context.POWER_SERVICE);
-            //PowerManager.WakeLock wakeLock = powerManager.newWakeLock((PowerManager.SCREEN_BRIGHT_WAKE_LOCK | PowerManager.FULL_WAKE_LOCK | PowerManager.ACQUIRE_CAUSES_WAKEUP), "TAG");
-            //wakeLock.acquire();
         }
     }
 
@@ -155,14 +154,20 @@ public class KioskModeActivity extends Activity {
     protected void onPostCreate(Bundle bundle) {
         super.onPostCreate(bundle);
 
+        try {
+            getActionBar().hide();
+        }catch (NullPointerException e){
+            e.printStackTrace();
+        }
+
         View decorView = getWindow().getDecorView();
         decorView.setSystemUiVisibility(
                 View.SYSTEM_UI_FLAG_FULLSCREEN
                         | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
                         | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
 
-        //provisionOwner();
 
+        provisionOwner();
     }
 
     /**
@@ -210,13 +215,10 @@ public class KioskModeActivity extends Activity {
      * This method is used in order to define the app as administrator device
      * Should be used only if the screenPinning is used => Android 5.0 + (API 22 +)
      */
-    /*
-    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-    private void provisionOwner() {
+    protected void provisionOwner() {
         DevicePolicyManager manager =
                 (DevicePolicyManager) getSystemService(Context.DEVICE_POLICY_SERVICE);
         ComponentName componentName = BasicDeviceAdminReceiver.getComponentName(this);
-
 
         if(!manager.isAdminActive(componentName)) {
             Intent intent = new Intent(DevicePolicyManager.ACTION_ADD_DEVICE_ADMIN);
@@ -225,10 +227,12 @@ public class KioskModeActivity extends Activity {
             return;
         }
 
-        if (manager.isDeviceOwnerApp(getPackageName()))
-            manager.setLockTaskPackages(componentName, new String [] {getPackageName()});
+        if (manager.isDeviceOwnerApp(getPackageName())) {
+            manager.setLockTaskPackages(componentName, new String[]{getPackageName()});
+            startLockTask();
+        }
     }
-*/
+
 
     /**
      * This method is overridden in order to disable long press on the power button (shutdown).
