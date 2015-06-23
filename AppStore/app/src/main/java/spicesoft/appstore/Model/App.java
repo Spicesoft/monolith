@@ -2,6 +2,7 @@ package spicesoft.appstore.Model;
 
 import android.graphics.Bitmap;
 import android.media.Image;
+import android.os.Environment;
 import android.widget.ImageView;
 
 /**
@@ -17,6 +18,7 @@ public class App {
     public String logoURL;
 
     public String downloadURL;
+    public static String downloadDir = Environment.getExternalStorageDirectory() + "/Download/updates/";
     public String apkName;
     public String pkgName;
     public String activityName;

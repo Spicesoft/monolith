@@ -1,36 +1,30 @@
 package spicesoft.appstore;
 
-import android.app.Activity;
-import android.app.AlertDialog;
-import android.app.Dialog;
+
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
-import android.hardware.Sensor;
-import android.hardware.SensorManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
-import android.os.Environment;
 import android.util.Log;
 import android.webkit.WebView;
 import java.util.ArrayList;
 import java.util.List;
 import spicesoft.appstore.AsyncTasks.ApkDownloader;
 import spicesoft.appstore.AsyncTasks.AsyncResponse;
-import spicesoft.appstore.AsyncTasks.GetVersionFromServer;
 import spicesoft.appstore.AsyncTasks.InstallDownloadedApp;
-import spicesoft.appstore.AsyncTasks.RebootDevice;
+import spicesoft.appstore.AsyncTasks.LaunchApp;
 import spicesoft.appstore.AsyncTasks.SetDeviceOwner;
 import spicesoft.appstore.AsyncTasks.getAppInfoFromServer;
 import spicesoft.appstore.AsyncTasks.getAvailableAppsFromServer;
 import spicesoft.appstore.KisokMode.KioskModeNfcActivity;
 import spicesoft.appstore.Model.App;
+import spicesoft.appstore.Model.ServerInfo;
 import spicesoft.appstore.NFC.NfcResponse;
-import spicesoft.appstore.Receiver.BasicDeviceAdminReceiver;
+
 
 
 public class MainActivity extends KioskModeNfcActivity implements AsyncResponse, NfcResponse{
@@ -41,31 +35,15 @@ public class MainActivity extends KioskModeNfcActivity implements AsyncResponse,
 
     public static final String PREFS_NAME = "spicesoft.appstore";
 
-    /**
-     * Update server URL
-     */
-    private static final String baseUrl = "http://4ltrophyece.fr/tandoori/";
-
     private WebView mWebView;
 
     private App application = new App();
-
-    /**
-     * URL of the version file
-     */
-    private static final String BuildVersionPath= baseUrl;
-
-    /**
-     * Download directory on the device
-     */
-    private static final String downloadDirectory = "/Download/updates/";
-
 
     private static final String DefaultURL = "";
 
     private InstallDownloadedApp InstallApp;
     private ApkDownloader DlUpdate;
-    private LaunchApp launcher = new LaunchApp();
+    private LaunchApp launcher;
     private getAppInfoFromServer appinfo;
 
 
@@ -75,18 +53,6 @@ public class MainActivity extends KioskModeNfcActivity implements AsyncResponse,
         private String versionName = "";
         private int versionCode = 0;
     }
-
-
-    static class LaunchParam {
-        public Activity a;
-        public String pkgName = "";
-        public String actName = "";
-    }
-
-    private LaunchParam launchParam = new LaunchParam();
-
-    public SensorManager sensorManager;
-    public Sensor proximitySensor;
 
 
     /** Called when the activity is first created. */
@@ -111,6 +77,8 @@ public class MainActivity extends KioskModeNfcActivity implements AsyncResponse,
     protected void onResume() {
         super.onResume();
 
+        initTasks();
+
         ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo netInfo = cm.getActiveNetworkInfo();
         if(!(netInfo != null && netInfo.isConnectedOrConnecting())) {
@@ -130,27 +98,25 @@ public class MainActivity extends KioskModeNfcActivity implements AsyncResponse,
     }
 
 
-    public void refreshAppStore(){
+    public void initTasks(){
 
         getAvailableAppsFromServer appsFromServer = new getAvailableAppsFromServer(this);
         appsFromServer.delegate = this;
-        appsFromServer.execute(baseUrl + "apps");
+        appsFromServer.execute(ServerInfo.BASE_URL + ServerInfo.APPS_LIST_FILE);
 
         appinfo = new getAppInfoFromServer(this);
         appinfo.delegate = this;
 
-        GetVersionFromServer ServerVersion = new GetVersionFromServer();
-        ServerVersion.delegate = this;
+        //UpdateDownloaderInstance.getInstance().setDlUpdate(new ApkDownloader(this));
+        //UpdateDownloaderInstance.getInstance().getDlUpdate().delegate = this;
 
-        UpdateDownloaderInstance.getInstance().setDlUpdate(new ApkDownloader(this));
-        UpdateDownloaderInstance.getInstance().getDlUpdate().delegate = this;
+        DlUpdate = new ApkDownloader();
+        DlUpdate.delegate = this;
 
         InstallApp = new InstallDownloadedApp();
         InstallApp.delegate = this;
 
-        launchParam = new LaunchParam();
-        launchParam.a = this;
-
+        launcher = new LaunchApp(this);
     }
 
 
@@ -255,49 +221,24 @@ public class MainActivity extends KioskModeNfcActivity implements AsyncResponse,
     }
 
 
-    public void launchApp(String packageName, String activityName){
-        launchParam.pkgName = packageName;
-        launchParam.actName = activityName;
-        launcher.execute(launchParam);
-    }
-
-
     public void uninstallApp(String packageName){
 
     }
 
-    @Override
-    public void postGetVersionFromServerResult(int ServerVersionCode, String ServerVersionName) {
-
-
-        if (isAppInstalled(application.name)) {
-
-            if (isServerVersionNewer(application.name, ServerVersionCode)) {
-                Log.d(TAG, "New Version available (" + ServerVersionCode + ") => Starting download");
-                //Download + install
-
-            } else {
-                // The app is up to date
-                //launch app
-            }
-         }else {
-            //App is not installed => download it and install it for the 1st time
-            }
-        }
 
     @Override
-    public void postInstallDownloadedAppResult() {
-        launchApp(application.pkgName, application.activityName);
+    public void postInstallDownloadedAppResult(App app) {
+        launcher.execute(app);
     }
 
 
     @Override
-    public void postDownloadUpdate() {
-        InstallApp.execute(Environment.getExternalStorageDirectory() + downloadDirectory + application.apkName);
+    public void postDownloadUpdate(App app) {
+        InstallApp.execute(app);
     }
 
     @Override
-    public void postUninstallApp() {
+    public void postUninstallApp(App app) {
 
     }
 
@@ -312,7 +253,26 @@ public class MainActivity extends KioskModeNfcActivity implements AsyncResponse,
     @Override
     public void postGetAppInfoFromServerResult(List<App> app) {
 
+        for (int i = 0; i < app.size(); i++) {
+
+            if (isAppInstalled(application.name)) {
+
+                if (isServerVersionNewer(application.name, app.get(i).versionCode)) {
+                    Log.d(TAG, "New Version available (" + app.get(i).versionCode + ") => Starting download");
+                    //Download + install
+                    DlUpdate.execute(app.get(i));
+
+                } else {
+                    // The app is up to date
+                    //launch app
+                }
+            } else {
+                //App is not installed => download it and install it for the 1st time
+                DlUpdate.execute(app.get(i));
+            }
+        }
     }
+
 
 
     @Override
@@ -341,6 +301,7 @@ public class MainActivity extends KioskModeNfcActivity implements AsyncResponse,
     }
 
 
+
     public void deviceOwnerConfig(){
 
         if(DEBUG)Log.d(TAG, "Check Config");
@@ -351,15 +312,10 @@ public class MainActivity extends KioskModeNfcActivity implements AsyncResponse,
         if (settings.getBoolean("config_done", true)) {
             //the app is being launched for first time, do something
             if(DEBUG)Log.d(TAG, "config done");
-
             startLockTask();
-
-
         }else{
             if(DEBUG)Log.d(TAG, "config not done");
-
             new SetDeviceOwner(this).execute();
-
         }
     }
 }

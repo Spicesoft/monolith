@@ -129,6 +129,7 @@ public class KioskModeActivity extends Activity {
         aManager.setRingerMode(aManager.RINGER_MODE_SILENT);
     }
 
+
     @Override
     protected void onPause() {
         super.onPause();

@@ -12,10 +12,12 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
+import spicesoft.appstore.Model.App;
+
 /**
  * Created by Vincent on 29/05/15.
  */
-public class ApkDownloader extends AsyncTask<String, Void, Void> {
+public class ApkDownloader extends AsyncTask<App, Void, App> {
 
     public AsyncResponse delegate = null;
     public Activity activity = null;
@@ -50,12 +52,15 @@ public class ApkDownloader extends AsyncTask<String, Void, Void> {
     }
 
 
-    @Override
-    protected Void doInBackground(String... params) {
 
-        String urlpath = params[0];
-        String ApkName = params[1];
-        String downloadDirectory = params[2];
+    @Override
+    protected App doInBackground(App... params) {
+
+        App app = params[0];
+
+        String urlpath = app.downloadURL;
+        String ApkName = app.apkName;
+        String downloadDirectory = app.downloadDir;
 
         try{
             URL url = new URL(urlpath); //File URL
@@ -90,18 +95,18 @@ public class ApkDownloader extends AsyncTask<String, Void, Void> {
             e.printStackTrace();
         }
 
-        return null;
+        return app;
     }
 
     @Override
-    protected void onPostExecute(Void aVoid) {
-        super.onPostExecute(aVoid);
+    protected void onPostExecute(App app) {
+        super.onPostExecute(app);
 
         if (dialog.isShowing()) {
             dialog.dismiss();
         }
 
-        delegate.postDownloadUpdate();
+        delegate.postDownloadUpdate(app);
     }
 
     @Override

@@ -74,12 +74,13 @@ public class SetDeviceOwner extends AsyncTask<Void, Void, Void>{
         } catch (InterruptedException e) {
             e.printStackTrace();
             error = true;
-            errorCode = "Device owner chown process interrupted";
+            errorCode = "device_owner.xml chown process interrupted";
             if(DEBUG) Log.d(TAG, "AsyncError");
 
         }
         return null;
     }
+
 
     @Override
     protected void onPostExecute(Void aVoid) {

@@ -5,12 +5,14 @@ import android.util.Log;
 
 import java.io.File;
 
+import spicesoft.appstore.Model.App;
+
 /**
  * Async task to uninstall an app using adb shell commands, with root access.
  * SuperSU needs to grant access.
  * Created by Vincent on 01/06/15.
  */
-public class UninstallApp extends AsyncTask <String, Void, Void> {
+public class UninstallApp extends AsyncTask <App, Void, App> {
 
     private static final boolean DEBUG = true;
     private static final String TAG = "AppUninstaller";
@@ -27,9 +29,9 @@ public class UninstallApp extends AsyncTask <String, Void, Void> {
      */
 
     @Override
-    protected Void doInBackground(String... params) {
+    protected App doInBackground(App... params) {
 
-        File file = new File(params[0]);
+        File file = new File(params[0].pkgName);
         if(file.exists()){
             try {
                 String command;
@@ -46,11 +48,11 @@ public class UninstallApp extends AsyncTask <String, Void, Void> {
 
     /**
      * Call the postUninstallApp method when the Async task is done.
-     * @param aVoid
+     * @param app
      */
     @Override
-    protected void onPostExecute(Void aVoid) {
-        super.onPostExecute(aVoid);
-        delegate.postUninstallApp();
+    protected void onPostExecute(App app) {
+        super.onPostExecute(app);
+        delegate.postUninstallApp(app);
     }
 }

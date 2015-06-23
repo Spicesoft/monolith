@@ -26,14 +26,15 @@ import spicesoft.appstore.Model.ServerInfo;
  */
 public class getAppInfoFromServer extends AsyncTask<List<String>, Void, List<App>> {
 
+
     public AsyncResponse delegate = null;
     public ProgressDialog dialog;
     public Activity activity;
 
+
     public getAppInfoFromServer (Activity a){
         activity = a;
     }
-
 
 
     @Override

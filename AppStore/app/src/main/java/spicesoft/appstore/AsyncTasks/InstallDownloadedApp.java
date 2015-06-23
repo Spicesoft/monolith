@@ -6,11 +6,13 @@ import android.util.Log;
 import java.io.File;
 import java.io.IOException;
 
+import spicesoft.appstore.Model.App;
+
 /**
  * Async task that installs apk files using adb commands
  * Created by Vincent on 01/06/15.
  */
-public class InstallDownloadedApp extends AsyncTask<String, Void, Void> {
+public class InstallDownloadedApp extends AsyncTask<App, Void, App> {
 
     private static final boolean DEBUG = true;
     private static final String TAG = "InstallDownloadedApp";
@@ -23,9 +25,9 @@ public class InstallDownloadedApp extends AsyncTask<String, Void, Void> {
      * @return
      */
     @Override
-    protected Void doInBackground(String... params) {
+    protected App doInBackground(App... params) {
 
-        String path = params[0];
+        String path = params[0].downloadDir;
 
         File file = new File(path);
         if(file.exists()){
@@ -41,12 +43,12 @@ public class InstallDownloadedApp extends AsyncTask<String, Void, Void> {
                 e.printStackTrace();
             }
         }
-        return null;
+        return params[0];
     }
 
     @Override
-    protected void onPostExecute(Void aVoid) {
-        super.onPostExecute(aVoid);
-        delegate.postInstallDownloadedAppResult();
+    protected void onPostExecute(App app) {
+        super.onPostExecute(app);
+        delegate.postInstallDownloadedAppResult(app);
     }
 }

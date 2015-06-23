@@ -9,27 +9,21 @@ import spicesoft.appstore.Model.App;
  * Created by Vincent on 29/05/15.
  */
 public interface AsyncResponse {
-     /**
-      * Method called when the version available on the update server is checked.
-      * @param versionCode is the version code read from the server version file.
-      * @param versionName is the version name read from the server version file.
-      */
-     void postGetVersionFromServerResult(int versionCode, String versionName);
 
      /**
       * Method called when the update is installed.
       */
-     void postInstallDownloadedAppResult();
+     void postInstallDownloadedAppResult(App app);
 
      /**
       * This method gets called when the update download is done.
       */
-     void postDownloadUpdate();
+     void postDownloadUpdate(App app);
 
      /**
       * This method gets called when the app is uninstalled.
       */
-     void postUninstallApp();
+     void postUninstallApp(App app);
 
      void postGetAvailableAppFromServerResult(List<String> appList);
 
