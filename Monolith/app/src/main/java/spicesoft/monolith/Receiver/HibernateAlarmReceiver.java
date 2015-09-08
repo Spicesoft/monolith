@@ -15,12 +15,13 @@ import spicesoft.monolith.KisokMode.WakeLockInstance;
  */
 public class HibernateAlarmReceiver extends BroadcastReceiver
 {
+    private static final boolean DEBUG = true;
+
     @Override
     public void onReceive(Context context, Intent intent) {
 
-        Toast.makeText(context, "Hibernate Alarm received", Toast.LENGTH_LONG).show();
+        if(DEBUG) Toast.makeText(context, "Hibernate Alarm received", Toast.LENGTH_LONG).show();
 
-        KioskModeActivity.lockPowerButton(false);
         PowerManager.WakeLock wl = WakeLockInstance.getInstance().getWl();
 
         try{
@@ -29,11 +30,11 @@ public class HibernateAlarmReceiver extends BroadcastReceiver
 
             WakeLockInstance.getInstance().getPwl().acquire();
 
-            Log.d("HibernateReceiver", "Wakelock released !");
+            if(DEBUG) Log.d("HibernateReceiver", "Wakelock released !");
         }
         catch (Exception e)
         {
-            Log.d("HibernateAlarmReceiver", "WakeLock cannot be released \n" + e.getMessage());
+            if(DEBUG) Log.d("HibernateAlarmReceiver", "WakeLock cannot be released \n" + e.getMessage());
         }
     }
 }

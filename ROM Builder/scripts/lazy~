@@ -1,0 +1,18 @@
+  echo "============================================================"
+  echo "             		Welcome to Lazy Mode
+  echo "============================================================"
+  echo 
+  echo "This will root your rom, install apks, remove launcher, remove the 1st install wizard,"
+  echo "disable systemUI, install boot animation, disable keyguard ."
+  echo 
+
+  scripts/press_enter
+
+scripts/do_root
+scripts/install_apk
+scripts/remove_launcher
+scripts/remove_wizard
+scripts/disable_systemui
+scripts/install_boot_animation
+scripts/disable_keyguard
+

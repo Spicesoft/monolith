@@ -34,12 +34,28 @@ public class JsHandler {
     }
 
 
+    public void nfcAuthenticate(String id){
+        final String webUrl = "javascript:nfc_authenticate('"+id+"')";
+
+        if(!activity.isFinishing())
+            // loadurl on UI main thread
+            activity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    webView.loadUrl(webUrl);
+                    Log.d(TAG, "Sending NFC_ID to JS");
+                }
+            });
+    }
+
+
     /**
      * This function handles call from Android-Java
      */
     public void javaFnCall(String jsString) {
 
-        final String webUrl = "javascript:diplayJavaMsg('"+jsString+"')";
+        final String webUrl = "javascript:alert('"+jsString+"')";
+
         // Add this to avoid android.view.windowmanager$badtokenexception unable to add window
         if(!activity.isFinishing())
             // loadurl on UI main thread

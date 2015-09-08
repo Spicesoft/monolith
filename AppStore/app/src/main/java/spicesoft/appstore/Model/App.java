@@ -12,10 +12,8 @@ public class App {
 
     public String name;
     public String description;
-    public Bitmap logo;
     public int versionCode;
     public String versionName;
-    public String logoURL;
 
     public String downloadURL;
     public static String downloadDir = Environment.getExternalStorageDirectory() + "/Download/updates/";

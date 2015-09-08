@@ -73,28 +73,14 @@ public class KioskModeNfcActivity extends KioskModeActivity {
             /*
                     NFC Tag Discovered !
              */
+
+            //Call delegate for NFC intent
             delegate.NfcIntentReceived(intent);
 
             if (DEBUG) Log.d(TAG, "Size : " + tag.getId().length +
                     "Tag ID : " + HexDump.dumpHexString(tag.getId()) +
                     "\n");
 
-            if (HexDump.dumpHexString(tag.getId()).equals("9A0BA447")) {
-                Toast.makeText(this, "Vincent", Toast.LENGTH_SHORT).show();
-            }else if(HexDump.dumpHexString(tag.getId()).equals("1A044481")){
-
-               // Toast.makeText(this, "Loading = " + "http://192.168.1.206:8000/webapps/concierge/", Toast.LENGTH_LONG ).show();
-
-               /* Intent intentw = new Intent(WifiManager.ACTION_PICK_WIFI_NETWORK);
-                intentw.putExtra("extra_prefs_show_button_bar", true);
-                intentw.putExtra("wifi_enable_next_on_connect", true);
-                startActivityForResult(intent, 1);
-                */
-
-            }
-            else {
-                Toast.makeText(this, "Mifare demo card", Toast.LENGTH_SHORT).show();
-            }
         } catch (NullPointerException e) {
             Log.d(TAG, "Unable to read the Tag ID : NULL pointer exception");
         }

@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.ProgressDialog;
 import android.os.AsyncTask;
 import android.os.Environment;
+import android.util.Log;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -19,39 +20,16 @@ import spicesoft.appstore.Model.App;
  */
 public class ApkDownloader extends AsyncTask<App, Void, App> {
 
+    private static final String TAG = "ApkDownloader" ;
     public AsyncResponse delegate = null;
     public Activity activity = null;
 
     public ProgressDialog dialog;
 
-    public ApkDownloader(Activity a){
+    public ApkDownloader(Activity a, AsyncResponse d){
         activity = a;
-    }
-
-    public ApkDownloader(){}
-
-
-    private static ApkDownloader instance = null;
-
-
-    public static ApkDownloader getInstance(){
-        if (instance == null) instance = new ApkDownloader();
-        return  instance;
-    }
-
-    public void setActivity(Activity a){
-        activity = a;
-    }
-
-    public Activity getActivity(){
-        return activity;
-    }
-
-    public void setDelegate(AsyncResponse d){
         delegate = d;
     }
-
-
 
     @Override
     protected App doInBackground(App... params) {
@@ -62,6 +40,7 @@ public class ApkDownloader extends AsyncTask<App, Void, App> {
         String ApkName = app.apkName;
         String downloadDirectory = app.downloadDir;
 
+        Log.d(TAG, "trying to download APK from : " + app.downloadURL + " To : " + app.downloadDir );
         try{
             URL url = new URL(urlpath); //File URL
 
@@ -71,8 +50,7 @@ public class ApkDownloader extends AsyncTask<App, Void, App> {
             c.connect(); // Connection Complete
 
 
-            String PATH = Environment.getExternalStorageDirectory() + downloadDirectory;
-            File file = new File(PATH); // PATH = /mnt/sdcard/download/
+            File file = new File(downloadDirectory); // PATH = /mnt/sdcard/download/
             if (!file.exists()) {
                 file.mkdirs();
             }
@@ -106,12 +84,13 @@ public class ApkDownloader extends AsyncTask<App, Void, App> {
             dialog.dismiss();
         }
 
-        delegate.postDownloadUpdate(app);
+        delegate.postApkDownloader(app);
     }
 
     @Override
     protected void onPreExecute() {
         super.onPreExecute();
+
         dialog = ProgressDialog.show(activity, "",
                 "Loading. Please wait...", true);
     }

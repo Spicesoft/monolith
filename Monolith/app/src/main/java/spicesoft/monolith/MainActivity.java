@@ -2,35 +2,32 @@ package spicesoft.monolith;
 
 import android.app.Activity;
 import android.app.AlarmManager;
+import android.app.Instrumentation;
 import android.app.PendingIntent;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.ActivityInfo;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
+import android.net.UrlQuerySanitizer;
 import android.net.wifi.WifiManager;
 import android.nfc.NfcAdapter;
 import android.nfc.Tag;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.util.Base64;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.webkit.WebView;
 import android.widget.Toast;
 
-import org.json.JSONObject;
-
+import java.net.URLDecoder;
 import java.util.Calendar;
-import java.util.List;
 import java.util.Random;
 import java.util.TimeZone;
 
 import spicesoft.monolith.KisokMode.KioskModeNfcActivity;
-import spicesoft.monolith.KisokMode.WakeLockInstance;
 import spicesoft.monolith.NFC.HexDump;
 import spicesoft.monolith.NFC.NfcResponse;
 import spicesoft.monolith.Receiver.HibernateAlarmReceiver;
@@ -40,7 +37,6 @@ import spicesoft.monolith.utils.WebViewTool;
 
 
 /**
- * Main activity
  * This activity is started right after Android's done booting.
  * It displays a wifiSetup activity if the tablet isn't connected to a wifi network.
  * Otherwise it display a fullscreen WebView
@@ -50,24 +46,25 @@ public class MainActivity extends KioskModeNfcActivity implements NfcResponse{
 
     public static boolean DEBUG = true;
     public static final String TAG = "MainActivity";
-    public static final String DefaultURL = "http://14cb3f28.ngrok.com";
 
-    public static final String UPDATER_SERVICE = "spicesoft.autoupdater";
+    public static final String UPDATER_SERVICE = "spicesoft.appstore";
+
     public static final long DISCONNECT_TIMEOUT = 10000; // 10 * 1000ms before user_inactivity timeout
-    public static final String PREFS_NAME = "spicesoft.monolith";
 
-    public static final int UPDATE_HOUR = 11;
-    public static final int UPDATE_MINUTE = 45;
-    public static final int MAX_JITTER = 5; //Spread the update on N minutes
+    public static final int UPDATE_HOUR = 0;
+    public static final int UPDATE_MINUTE = 30;
+    public static final int MAX_JITTER = 10; //Spread the update on N minutes
 
-
-    public SharedPreferences settings;
+    private static final String ERROR_URL = "file:///android_asset/error.html";
+    private static final String TEST_URL = "http://spicesoft.cowork.io:8000/login/?next=/webapps/meeting_room/";
 
     private Activity activity;
 
     private JsHandler mJsHandler;
 
     private WebView mWebView;
+
+    private String nfcStatus = "";
 
 
     @Override
@@ -82,39 +79,54 @@ public class MainActivity extends KioskModeNfcActivity implements NfcResponse{
 
         mWebView = (WebView) findViewById(R.id.web_content);
         mJsHandler = new JsHandler(this, mWebView);
-        WebViewTool.init(mWebView, mJsHandler);
+        new WebViewTool(this).init(mWebView, mJsHandler);
 
         ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo netInfo = cm.getActiveNetworkInfo();
 
         if(!(netInfo != null && netInfo.isConnectedOrConnecting())) {
+            //Launch wifi setup wizard
             Intent intent = new Intent(WifiManager.ACTION_PICK_WIFI_NETWORK);
             intent.putExtra("extra_prefs_show_button_bar", true);
             intent.putExtra("wifi_enable_next_on_connect", true);
             startActivityForResult(intent, 1);
         }
 
-
-
         try {
             Uri data = getIntent().getData();
+            if(DEBUG) Log.d(TAG, "URI data = " + data.toString());
             String scheme = data.getScheme(); // "cowork.app"
             String host = data.getHost(); // "monolith"
-            List<String> params = data.getPathSegments();
-            String base64JSON = params.get(0); // Base64 encoded JSON
-            Log.d(TAG, "PARAMS => " + base64JSON);
-            byte[] decodedJSON = Base64.decode(base64JSON, Base64.DEFAULT);
-            String JSON = new String(decodedJSON, "UTF-8");
-            Log.d(TAG, "DECODED => " + JSON );
-            JSONObject jObject = new JSONObject(JSON);
-            String URL = jObject.getString("URL"); //get JSON value for "URL" key
-            mWebView.loadUrl(URL);
+            if(DEBUG) Log.d(TAG, "Host = " + host);
+
+            String query = data.getQuery();
+
+            UrlQuerySanitizer sanitizer = new UrlQuerySanitizer();
+            sanitizer.setAllowUnregisteredParamaters(true);
+            sanitizer.parseUrl(getIntent().getData().toString());
+            if(DEBUG) Log.d(TAG, "query = " + query);
+            String URL = sanitizer.getValue("url");
+            if(DEBUG) Log.d(TAG, "URL = " + URL);
+
+            String decodedUrl = URLDecoder.decode(URL, "UTF-8");
+            mWebView.loadUrl(decodedUrl);
+
+            Context mContext = getApplicationContext().createPackageContext(
+                    "spicesoft.appstore",
+                    Context.MODE_PRIVATE);
+            SharedPreferences settings = mContext.getSharedPreferences(PREFS_NAME, MODE_WORLD_WRITEABLE);
+
+            if(DEBUG) Log.d(TAG, "default_app(monolith) : " + settings.getString("default_app", ""));
+
+            settings.edit().putString("default_app", data.toString()).apply();
+
+            if(DEBUG) Log.d(TAG, "default_app(monolith) : " + settings.getString("default_app", ""));
+
         }
-        catch (Exception e){
-            mWebView.loadUrl("http://www.google.com");
+        catch (Exception e){ // error while parsing Intent's parameters
+            mWebView.loadUrl(ERROR_URL);
             e.printStackTrace();
         }
-
 
         /*
         Get the working hours of the center for the day, then call setWorkingHours methods from KioskModeActivity class.
@@ -128,15 +140,14 @@ public class MainActivity extends KioskModeNfcActivity implements NfcResponse{
         //WakeUpTime.set(Calendar.HOUR_OF_DAY, 15);
         //WakeUpTime.set(Calendar.MINUTE, UPDATE_MINUTE);
 
-        setWakeUpAlarm(WakeUpTime);
+        //setWakeUpAlarm(WakeUpTime);
 
         Calendar HibernateTime = Calendar.getInstance();
         HibernateTime.setTimeZone(TimeZone.getDefault());
         //HibernateTime.set(Calendar.HOUR_OF_DAY, 15);
         //HibernateTime.set(Calendar.MINUTE, 21);
 
-        setHibernateAlarm(HibernateTime);
-
+        //setHibernateAlarm(HibernateTime);
 
         Calendar updateTime = Calendar.getInstance();
         updateTime.setTimeZone(TimeZone.getDefault());
@@ -145,7 +156,7 @@ public class MainActivity extends KioskModeNfcActivity implements NfcResponse{
 
         int jitterDelay = new Random().nextInt(MAX_JITTER); // Generate a random delay in [ 0 ; MAX_JITTER ]
 
-        //setUpdateAlarm(updateTime, jitterDelay);
+        setUpdateAlarm(updateTime, jitterDelay);
 
     }
 
@@ -163,35 +174,6 @@ public class MainActivity extends KioskModeNfcActivity implements NfcResponse{
     @Override
     public void onResume() {
         super.onResume();
-/*
-        if (!AndroidUtils.isWifiConnected(this)){
-            AndroidUtils.launchWifiSetup(this);
-        }
-        */
-
-        //mWebView.loadUrl(DefaultURL);
-    }
-
-
-    /**
-     * This method is executed on the very first run of the app.
-     * It will be used to set the tablet configurtion (e.g. center openning/closing hours, meeting room ID...)
-     */
-    public void onFirstRun(){
-        settings = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
-        setOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
-
-        if (settings.getBoolean("first_run", true)) {
-            //the app is being launched for first time, do something
-            if(DEBUG)Log.d(TAG, "First run");
-
-
-            //AndroidUtils.launchWifiSetup(this);
-
-            settings.edit().putBoolean("first_run", false).commit();
-        }else{
-            if(DEBUG)Log.d(TAG, "Not first run");
-        }
     }
 
 
@@ -205,12 +187,6 @@ public class MainActivity extends KioskModeNfcActivity implements NfcResponse{
         public void run() {
             // Perform any required operation on disconnect
             if(DEBUG)Log.d("INACTIVITY HANDLER", "User activity timeout");
-
-            /*
-            if (!AndroidUtils.isWifiConnected(activity)){
-                AndroidUtils.launchWifiSetup(activity);
-            }
-            */
 
         }
     };
@@ -234,7 +210,6 @@ public class MainActivity extends KioskModeNfcActivity implements NfcResponse{
      * @param jitter is the number of minutes (int) used to delay the update process.
      */
     public void setUpdateAlarm(Calendar UpdateTime, int jitter){
-        //TODO : Add random jitter to the update time
 
         long jitterMillis = jitter * 60 * 1000;
 
@@ -288,37 +263,79 @@ public class MainActivity extends KioskModeNfcActivity implements NfcResponse{
 
         Tag tag = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
 
-        /*
-        if(HexDump.dumpHexString(tag.getId()).equals("1A044481"))
-        mWebView.loadUrl("http://14cb3f28.ngrok.com/webapps/concierge/");
+        if(DEBUG) Toast.makeText(this, "NFC TAG discovered ! " + HexDump.dumpHexString(tag.getId()), Toast.LENGTH_SHORT).show();
 
-        if(HexDump.dumpHexString(tag.getId()).equals("9A0BA447")) {
-        */
+        //Calling JS method
+        //params: TagID
+        //mJsHandler.nfcAuthenticate(HexDump.dumpHexString(tag.getId()));
 
-            Intent sIntent = new Intent("android.intent.action.MAIN");
-            sIntent.setComponent(ComponentName.unflattenFromString("spicesoft.appstore" + "/" + "spicesoft.appstore" + "." + "MainActivity"));
-        sIntent.addCategory("android.intent.category.LAUNCHER");
-        sIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            startActivity(sIntent);
+        final String tagID = HexDump.dumpHexString(tag.getId());
 
-       // }
 
-        Toast.makeText(this, "NFC TAG discovered !", Toast.LENGTH_LONG).show();
+        final UrlQuerySanitizer sanitizer = new UrlQuerySanitizer();
+        sanitizer.setAllowUnregisteredParamaters(true);
+        sanitizer.parseUrl(mWebView.getUrl());
 
+        if(DEBUG) Log.d(TAG, "url = " + mWebView.getUrl());
+
+        if (mWebView.getUrl().contains("nfc=true")) {
+            if (sanitizer.getValue("nfc") != null) nfcStatus = sanitizer.getValue("nfc");
+
+            if (nfcStatus.equals("true")) {  //type tagID + tab + tagID + enter
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if(DEBUG)Log.d("Sanitizer nfc = ", nfcStatus);
+                        nfcStatus = "true";
+                        Instrumentation inst = new Instrumentation();
+                        for (int i = 0; i < tagID.length(); i++) {
+                            inst.sendKeyDownUpSync(KeyEvent.keyCodeFromString("KEYCODE_" + tagID.charAt(i)));
+                        }
+                    }
+
+                }).start();
+
+            }
+        } else {
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+
+                        nfcStatus = "auth";
+                        Instrumentation inst = new Instrumentation();
+                        for (int i = 0; i < tagID.length(); i++) {
+                            inst.sendKeyDownUpSync(KeyEvent.keyCodeFromString("KEYCODE_" + tagID.charAt(i)));
+                        }
+                        inst.sendKeyDownUpSync(KeyEvent.KEYCODE_TAB);
+
+                        for (int i = 0; i < tagID.length(); i++) {
+                            inst.sendKeyDownUpSync(KeyEvent.keyCodeFromString("KEYCODE_" + tagID.charAt(i)));
+                        }
+                        inst.sendKeyDownUpSync(KeyEvent.KEYCODE_ENTER);
+                    }
+
+                }).start();
+        }
     }
-
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-
         switch (requestCode){
             case 1:
                 mWebView.reload();
-                Toast.makeText(this, "WebView reloaded after Wifi config", Toast.LENGTH_LONG).show();
+                if(DEBUG) Toast.makeText(this, "WebView reloaded after Wifi config", Toast.LENGTH_LONG).show();
                 break;
-
             default:
                 break;
         }
     }
+
+    /**
+     * For debugging purpose only, should be empty.
+     */
+    @Override
+    public void onBackPressed() {
+        mWebView.reload();
+    }
+
 }

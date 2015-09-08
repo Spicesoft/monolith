@@ -18,7 +18,7 @@ public interface AsyncResponse {
      /**
       * This method gets called when the update download is done.
       */
-     void postDownloadUpdate(App app);
+     void postApkDownloader(App app);
 
      /**
       * This method gets called when the app is uninstalled.

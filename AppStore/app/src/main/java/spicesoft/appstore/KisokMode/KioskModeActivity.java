@@ -3,8 +3,6 @@ package spicesoft.appstore.KisokMode;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.KeyguardManager;
-import android.app.admin.DevicePolicyManager;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
@@ -22,8 +20,6 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-
-import spicesoft.appstore.Receiver.BasicDeviceAdminReceiver;
 
 
 /**
@@ -59,16 +55,18 @@ public class KioskModeActivity extends Activity {
     public  void enableFullKioskMode(){
 
         lockPowerButton(false);
+        /*
         powerManager = (PowerManager) getSystemService(Context.POWER_SERVICE);
         PowerManager.WakeLock fullWakeLock = powerManager.newWakeLock((PowerManager.SCREEN_BRIGHT_WAKE_LOCK | PowerManager.FULL_WAKE_LOCK | PowerManager.ACQUIRE_CAUSES_WAKEUP), "Loneworker - FULL WAKE LOCK");
         PowerManager.WakeLock partialWakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "Loneworker - PARTIAL WAKE LOCK");
         WakeLockInstance.getInstance().setWl(fullWakeLock);
         WakeLockInstance.getInstance().setPwl(partialWakeLock);
         WakeLockInstance.getInstance().getWl().acquire();
+        */
 
         lockVolumeButtons(false);
         disableKeyguard();
-        //disableSound();
+        disableSound();
         setOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
         enabled = true;
     }
@@ -133,7 +131,7 @@ public class KioskModeActivity extends Activity {
     @Override
     protected void onPause() {
         super.onPause();
-
+/*
         if (WakeLockInstance.getInstance().getWl().isHeld()){
             WakeLockInstance.getInstance().getWl().release();
             WakeLockInstance.getInstance().getPwl().acquire();
@@ -148,18 +146,13 @@ public class KioskModeActivity extends Activity {
                 WakeLockInstance.getInstance().getWl().acquire();
             }
         }
+        */
     }
 
 
     @Override
-    protected void onPostCreate(Bundle bundle) {
-        super.onPostCreate(bundle);
-
-        try {
-            getActionBar().hide();
-        }catch (NullPointerException e){
-            e.printStackTrace();
-        }
+    protected void onPostResume() {
+        super.onPostResume();
 
         View decorView = getWindow().getDecorView();
         decorView.setSystemUiVisibility(
@@ -167,8 +160,6 @@ public class KioskModeActivity extends Activity {
                         | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
                         | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
 
-
-        provisionOwner();
     }
 
     /**
@@ -177,9 +168,7 @@ public class KioskModeActivity extends Activity {
      */
     @Override
     public void onBackPressed() {
-
         //Do nothing
-        //Activate the back button to unpin the screen for debug purposes only
         try {
             //stopLockTask();
         }
@@ -192,7 +181,6 @@ public class KioskModeActivity extends Activity {
     public void setWorkingHours(Date start, Date stop){
 
         Date now = Calendar.getInstance().getTime();
-
 
     }
 
@@ -208,29 +196,6 @@ public class KioskModeActivity extends Activity {
             return true;
         } else {
             return super.dispatchKeyEvent(event);
-        }
-    }
-
-
-    /**
-     * This method is used in order to define the app as administrator device
-     * Should be used only if the screenPinning is used => Android 5.0 + (API 22 +)
-     */
-    protected void provisionOwner() {
-        DevicePolicyManager manager =
-                (DevicePolicyManager) getSystemService(Context.DEVICE_POLICY_SERVICE);
-        ComponentName componentName = BasicDeviceAdminReceiver.getComponentName(this);
-
-        if(!manager.isAdminActive(componentName)) {
-            Intent intent = new Intent(DevicePolicyManager.ACTION_ADD_DEVICE_ADMIN);
-            intent.putExtra(DevicePolicyManager.EXTRA_DEVICE_ADMIN, componentName);
-            startActivityForResult(intent, 0);
-            return;
-        }
-
-        if (manager.isDeviceOwnerApp(getPackageName())) {
-            manager.setLockTaskPackages(componentName, new String[]{getPackageName()});
-            startLockTask();
         }
     }
 

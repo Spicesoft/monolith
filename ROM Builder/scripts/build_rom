@@ -48,13 +48,14 @@ echo "Enter a name for your ROM (default : update.zip): "
 read zip_name
 
 if [ "$zip_name" == "" ]
-  then 
-  $zip_name = "update"
+ then 
+  echo "Creating update.zip file..."
+  zip -r -y -q ../OUTPUT/update.zip * -x system_mount\* system.img
+else
+  extension="zip"
+  echo "Creating $zip_name.$extension file..."
+  zip -r -y -q ../OUTPUT/$zip_name.$extension * -x system_mount\* system.img
 fi
-
-echo "Creating $zip_name.zip file..."
-
-zip -r -y -q ../OUTPUT/$zip_name * -x system_mount\* system.img
 
 echo "Done !"
 

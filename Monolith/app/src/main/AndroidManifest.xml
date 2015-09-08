@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="spicesoft.monolith"
+    android:sharedUserId="spicesoft.share"
     android:versionCode="1"
     android:versionName="1.1" >
 
     <uses-permission android:name="android.permission.WAKE_LOCK" />
-    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.NFC" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -26,7 +26,8 @@
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/AppTheme"
-        android:hardwareAccelerated="true">
+        android:hardwareAccelerated="true"
+        >
 
 
         <activity
@@ -37,28 +38,17 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
 
+
             <intent-filter>
                 <data android:scheme="cowork.app" android:host="monolith"/>
                 <action android:name="android.intent.action.VIEW" />
-                <category android:name="android.intent.category.DEFAULT"/>
                 <category android:name="android.intent.category.BROWSABLE"/>
+                <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
-
-            <!-- Define the app as a launcher: open the app when the HOME button is pressed -->
-
-            <receiver
-                android:name=".Receiver.BootReceiver">
-                <intent-filter>
-                    <action android:name="android.intent.action.BOOT_COMPLETED" />
-                    <action android:name="android.intent.action.QUICKBOOT_POWERON" />
-                    <category android:name="android.intent.category.DEFAULT" />
-                </intent-filter>
-            </receiver>
 
 
             <intent-filter>
                 <action android:name="android.nfc.action.TAG_DISCOVERED" />
-
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
 
@@ -68,24 +58,11 @@
         </activity>
 
 
-        <receiver
-            android:name=".Receiver.BasicDeviceAdminReceiver"
-            android:description="@string/admin_permission_description"
-            android:label="@string/admin_permission_label"
-            android:permission="android.permission.BIND_DEVICE_ADMIN" >
-            <meta-data
-                android:name="android.app.device_admin"
-                android:resource="@xml/device_admin" />
-
-            <intent-filter>
-                <action android:name="android.app.action.DEVICE_ADMIN_ENABLED" />
-            </intent-filter>
-        </receiver>
+        <!-- Define the app as a launcher: open the app when the HOME button is pressed -->
 
         <receiver android:name=".Receiver.UpdateAlarmReceiver" />
         <receiver android:name=".Receiver.HibernateAlarmReceiver" />
         <receiver android:name=".Receiver.WakeUpReceiver"/>
-
 
     </application>
 

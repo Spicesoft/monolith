@@ -1,5 +1,7 @@
 package spicesoft.appstore.AsyncTasks;
 
+import android.app.Activity;
+import android.app.ProgressDialog;
 import android.os.AsyncTask;
 import android.util.Log;
 
@@ -18,6 +20,14 @@ public class InstallDownloadedApp extends AsyncTask<App, Void, App> {
     private static final String TAG = "InstallDownloadedApp";
 
     public AsyncResponse delegate =null;
+    public Activity activity;
+
+    public ProgressDialog dialog;
+
+    public InstallDownloadedApp(Activity a, AsyncResponse d){
+        activity = a;
+        delegate = d;
+    }
 
     /**
      * Install apk file
@@ -27,13 +37,15 @@ public class InstallDownloadedApp extends AsyncTask<App, Void, App> {
     @Override
     protected App doInBackground(App... params) {
 
-        String path = params[0].downloadDir;
+        App app = params[0];
 
-        File file = new File(path);
+        if(DEBUG) Log.d(TAG, "APK path is: " + App.downloadDir + app.apkName);
+        File file = new File(App.downloadDir + app.apkName);
         if(file.exists()){
             try {
+                if(DEBUG) Log.d(TAG, "Trying to install APK");
                 String command;
-                command = "pm install -r " + path;
+                command = "pm install -r " + App.downloadDir + app.apkName;
                 Process proc = Runtime.getRuntime().exec(new String[] { "su", "-c", command });
                 proc.waitFor();
                 if (DEBUG) Log.d(TAG, "Installation process: done");

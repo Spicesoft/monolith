@@ -1,0 +1,19 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+    <!-- Settings, should always be in the overflow -->
+    <item android:id="@+id/action_wifi_settings"
+        android:title="@string/action_settings"
+        android:showAsAction="never" />
+
+    <item android:id="@+id/action_reset_config"
+        android:title="@string/reset_config"
+        android:showAsAction="never" />
+
+    <item android:id="@+id/test"
+        android:title="TEST"
+        android:showAsAction="never"/>
+
+    <item android:id="@+id/check_updates"
+        android:title="@string/check_updates"
+        android:showAsAction="never"/>
+
+</menu>

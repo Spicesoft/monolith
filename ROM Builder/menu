@@ -49,9 +49,11 @@ do
   echo "  8  - Disable KeyGuard (Lockscreen)"
   echo "  9  - Enable USB debug mode"
   echo "  10 - Watch Star Wars"
-  echo "  11 - Sign ROM"
+  echo "  11 - Sign ROM //TODO"
   echo 
   echo " 99 - Build ROM from working folder"
+  echo
+  echo "  l - Lazy mode (Set your Working directory first (1))"
   echo
   echo "  x - Exit"
   echo
@@ -72,11 +74,12 @@ do
       7) scripts/install_boot_animation; continue;;
       8) scripts/disable_keyguard; continue;;
       9) scripts/enable_debug; continue;;
-      10)telnet towel.blinkenlights.nl;;
-      11) sign_zip;;
+      10)gnome-terminal --tab -e "telnet towel.blinkenlights.nl";;
+      11)sign_zip;;
 
       99) scripts/build_rom;;
       x) clear; echo; echo "Allez tchao !."; echo; exit 1;;
+      l) scripts/lazy; continue;;
       *) echo "Invalid option"; continue;;
     esac
   fi

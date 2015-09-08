@@ -16,8 +16,10 @@ import android.widget.Toast;
  */
 public class UpdateAlarmReceiver extends BroadcastReceiver {
 
-    public static final String UPDATER_PACKAGE_NAME = "spicesoft.autoupdater";
-    public static final String UPDATER_ACTIVITY_NAME = "UpdaterActivity";
+    private static final boolean DEBUG = true;
+
+    public static final String UPDATER_PACKAGE_NAME = "spicesoft.appstore";
+    public static final String UPDATER_ACTIVITY_NAME = "MainActivity";
 
 
     @Override
@@ -30,7 +32,7 @@ public class UpdateAlarmReceiver extends BroadcastReceiver {
 
         sIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 
-        Toast.makeText(context, "Alarm received !", Toast.LENGTH_SHORT).show();
+        if(DEBUG) Toast.makeText(context, "Alarm received !", Toast.LENGTH_SHORT).show();
 
         context.startActivity(sIntent);
     }

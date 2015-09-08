@@ -2,13 +2,12 @@ package spicesoft.monolith.KisokMode;
 
 import android.app.PendingIntent;
 import android.content.Intent;
-import android.net.wifi.WifiManager;
+import android.nfc.NdefMessage;
 import android.nfc.NfcAdapter;
 import android.nfc.Tag;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.util.Log;
-import android.webkit.WebView;
-import android.widget.Toast;
 
 import spicesoft.monolith.NFC.HexDump;
 import spicesoft.monolith.NFC.NFCTool;
@@ -19,6 +18,7 @@ import spicesoft.monolith.NFC.NfcResponse;
  */
 public class KioskModeNfcActivity extends KioskModeActivity {
 
+    private static final String ADMIN_CARD_ID = "1A044481";
     private boolean DEBUG = true;
     public static final String TAG = "KioskModeNfcActivity";
 
@@ -71,15 +71,47 @@ public class KioskModeNfcActivity extends KioskModeActivity {
 
         Tag tag = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
         try {
-
             /*
                     NFC Tag Discovered !
              */
+            if(HexDump.dumpHexString(tag.getId()).equals(ADMIN_CARD_ID)){ //If the 'admin' card is detected
+                Intent sintent = new Intent();
+                sintent.setClassName("spicesoft.appstore", "spicesoft.appstore.MainActivity");
+                sintent.putExtra("default_app", "clear");
+                startActivity(sintent);
+                finish();
+            }
+
+            if (NfcAdapter.ACTION_NDEF_DISCOVERED.equals(intent.getAction())) {
+                NdefMessage[] messages = null;
+                Parcelable[] rawMsgs = intent.getParcelableArrayExtra(NfcAdapter.EXTRA_NDEF_MESSAGES);
+                if (rawMsgs != null) {
+                    messages = new NdefMessage[rawMsgs.length];
+                    for (int i = 0; i < rawMsgs.length; i++) {
+                        messages[i] = (NdefMessage) rawMsgs[i];
+                    }
+                }
+                assert messages != null;
+                if(messages[0] != null) {
+                    String result="";
+                    byte[] payload = messages[0].getRecords()[0].getPayload();
+                    // this assumes that we get back an SOH followed by host/code
+                    for (int b = 1; b<payload.length; b++) { // skip SOH
+                        result += (char) payload[b];
+                    }
+                    if(DEBUG) Log.d(TAG, "Tag content = " + result
+                    );
+                }
+            }
+
             delegate.NfcIntentReceived(intent);
 
-            if (DEBUG) Log.d(TAG, "Size : " + tag.getId().length +
+            if (DEBUG) Log.d(TAG,
+                    "Size ID : " + tag.getId().length +
                     "Tag ID : " + HexDump.dumpHexString(tag.getId()) +
-                    "\n");
+                    "\n"+
+                    "String = " + tag.toString());
+
 
         } catch (NullPointerException e) {
             Log.d(TAG, "Unable to read the Tag ID : NULL pointer exception");

@@ -1,0 +1,7 @@
+pwd
+sudo python tools/sdat2img.py WORKING_DIR/system.transfer.list WORKING_DIR/system.new.dat WORKING_DIR/system.img
+cd WORKING_DIR
+sudo mount -t ext4 -o loop system.img system_mount/
+sudo chmod 777 -R system_mount/
+cd ..
+echo "System successfully mounted"
