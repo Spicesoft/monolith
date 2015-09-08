@@ -1,0 +1,56 @@
+
+<ion-view view-title="Centre">
+	<ion-content>
+		<ion-tabs class="tabs-positive tabs-icon-only">
+
+			  <ion-tab title="Center info" icon-on="ion-ios-information" icon-off="ion-ios-information-outline">
+				  <ion-content  has-bouncing='true' class="center-bg">
+               <div id="content">
+                      <div id="center-info">
+                        <img id="center-image" src="http://www.jacques-jp-martin.fr/IMG/jpg/co_working.jpg">
+                        <h3 id="profile-name">
+                          Spicesoft Coworking
+                        </h3>
+                        <span id="center-description">
+                          Centre
+                        </span>
+                        <div id="center-address">
+                        	9, rue du Faubourg Poissonnière 75010
+                        </div>
+                      </div>
+					<ion-list>
+
+                        <ion-item> 
+                         <strong>Lundi: </strong> 8h - 20h
+                        </ion-item>
+                        <ion-item>
+                          <strong>Mardi: </strong> 8h - 20h
+                       	</ion-item>
+                        <ion-item>
+                          <strong>Mercredi: </strong> 8h - 20h
+                        </ion-item>
+                      	<ion-item>
+                          <strong>Jeudi: </strong> 8h - 20h
+                      	</ion-item>
+                      	<ion-item>
+                          <strong>Vendredi: </strong> 8h - 20h
+                     	</ion-item>
+                        <ion-item>
+                          <strong>Samedi: </strong> 8h - 20h
+                       	</ion-item>
+                       
+                      </ion-list>
+                  </div>
+                  </ion-content>
+			  </ion-tab>
+
+			  <ion-tab title="Map" icon-on="ion-ios-location" icon-off="ion-ios-location-outline">
+		 	 	<ion-content ng-controller="MapController" ng-init="initialize()" class="center-bg">
+			    	<div id="map" data-tap-disabled="true"></div>
+			          <a class="button button-navigate icon-left ion-ios-navigate" ng-click="" href="{{navUrl}}">Navigate</a>
+				</ion-content>			
+			  </ion-tab>
+
+			</ion-tabs>
+	</ion-content>
+</ion-view>

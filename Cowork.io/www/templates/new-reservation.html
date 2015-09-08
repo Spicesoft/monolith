@@ -1,0 +1,54 @@
+
+<ion-view view-title="Nouvelle Reservation">
+  <ion-content has-bouncing="true" class="new-res-bg">
+    <div class="new-reservation" id="new-res-content">
+      <h1>Réserver</h1>
+      <form>
+        <div class="list list-inset">
+
+          <div class="list list-inset">
+            <label class="item item-input item-select">
+              <div class="input-label">
+                Type:
+              </div>
+
+               <select name="reservationSelect" class="select"
+                       ng-options="option.title for option in data.availableOptions track by option.id"
+                       ng-model="data.selectedOption">
+               </select>
+
+            </label>
+          </div>
+
+          <ionic-datepicker input-obj="startDatepickerObject">
+            <button class="button button-calm button-block">
+              Date
+            </button>
+          </ionic-datepicker>
+
+            <div class="row">
+              <div class="col" class="timepicker-button">
+                <ionic-timepicker input-obj="startTimePicker">
+                  <a class="button button-calm button-block" >
+                    Heure de début
+                  </a>
+                </ionic-timepicker>
+              </div>
+
+              <div class="col">
+                <ionic-timepicker input-obj="endTimePicker">
+                  <a class="button button-calm button-block">
+                    Heure de fin
+                  </a>
+                </ionic-timepicker>
+              </div>
+            </div>
+
+            <button class="button button-block button-positive" ng-click="addNewReservation()">Valider</button>
+            <button class="button button-block" ng-click="cancelNewReservation()">Annuler</button>
+
+        </div>
+      </form>
+    </div>
+  </ion-content>
+</ion-view>

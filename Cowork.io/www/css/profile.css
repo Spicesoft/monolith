@@ -1,0 +1,117 @@
+	#profile-bg {
+		  background: url('https://s3-us-west-2.amazonaws.com/s.cdpn.io/94311/bg.jpg') no-repeat transparent;
+      -webkit-background-size: cover;
+      -moz-background-size: cover;
+      -o-background-size: cover;
+      background-size: cover;
+      text-align: center;
+      }
+
+  #content {
+    position: relative;
+    padding-top: 200px;
+    margin-bottom: 200px;
+    margin-top: 150px;
+    background-color: white;
+    box-shadow: 0px -1px 10px rgba(0,0,0,0.4);
+  }
+
+  #profile-info {
+    position: absolute;
+    top: -95px;
+    width: 100%;
+    z-index: 2;
+    text-align: center;
+  }
+  #profile-name {
+    color: #444;
+    font-size: 26px;
+  }
+  #profile-description {
+    font-size: 15px;
+    color: #888;
+  }
+  #profile-description a {
+    color: #888;
+  }
+
+  #profile-image {
+    display: block;
+    border-radius: 100px;
+    border: 1px solid #fff;
+    width: 128px;
+    height: 128px;
+    margin: 30px auto 0;
+    box-shadow: 0px 0px 4px rgba(0,0,0,0.7);
+  }
+
+  .list-item-content {
+    padding: 5px;
+  }
+
+  .list-item {
+    color: #666666;
+  }
+
+  .post {
+    color: #444;
+  }
+
+  .post-time {
+    position: absolute;
+    right: 5px;
+    top: 5px;
+    font-size: 11px;
+    color: #888;
+  }
+
+  .post-profile-image {
+    display: inline-block;
+    vertical-align: top;
+    width: 48px;
+    height: 48px;
+    margin-right: 10px;
+  }
+  .post-options {
+    position: absolute;
+    font-size: 16px;
+    right: 5px;
+    bottom: 5px;
+    color: #888;
+  }
+
+/*
+ * http://docs.angularjs.org/api/ng/directive/ngShow#usage_animations
+ */
+.list .item.item-accordion {
+  line-height: 38px;
+  padding-top: 0;
+  padding-bottom: 0;
+  transition: 0.09s all linear;
+}
+.list .item.item-accordion.ng-hide {
+  line-height: 0px;
+}
+.list .item.item-accordion.ng-hide-add,
+.list .item.item-accordion.ng-hide-remove {
+  display: block !important;
+}
+
+.graph{
+  margin: auto 2% auto 2%;
+  padding: 1% 200em auto 200em;
+}
+
+#top-graph{
+  margin-top: 2em;
+}
+
+#bottom-graph{
+  margin-bottom: 2em;
+}
+
+.user-settings h1{
+  text-align: center;
+  color:  #686872;
+}
+

@@ -1,0 +1,42 @@
+/* Empty. Add your own CSS if you like */
+
+.bar.bar-stable {
+	    border-color: #b2b2b2;
+	    background-color: #3fb4e5;
+	    background-image: linear-gradient(0deg, #b2b2b2, #b2b2b2 50%, transparent 50%);
+	    color: #444; 
+	}
+
+.bar.bar-stable .title {
+  	color: #ffffff; 
+  	}
+
+.bar-stable .button.button-clear {
+	color: #ffffff;
+ }
+
+.button.button-positive {
+	border-color: #ef5a30;
+	background-color: #ef5a30;
+	color: #fff; 
+	font-weight: bold;
+	}
+
+.button.button-positive.active, .button.button-positive.activated{
+	border-color: #ef5a30;
+	background-color: #ffffff;
+	color: #ef5a30;
+	box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.1); 
+	}
+
+.tabs-positive > .tabs, .tabs.tabs-positive, .tabs-striped.tabs-positive .tabs{
+	background-color: #3fb4e5;
+}
+
+.tabbed-content {
+	margin-top: 2%;
+}
+
+.calendar {
+	padding: 1% 1% 2% 1% !important;
+}

@@ -1,0 +1,67 @@
+
+<ion-view view-title="Profile">
+  <ion-content>
+    <ion-tabs class="tabs-positive tabs-icon-only">
+
+        <ion-tab title="List" icon-on="ion-ios-information" icon-off="ion-ios-information-outline">
+          <ion-content  has-bouncing='true' id="profile-bg">
+               <div id="content">
+                      <div id="profile-info">
+                          <img id="profile-image" src="http://spicesoft.pro.s3-eu-west-1.amazonaws.com/wp-content/uploads/2015/03/09212008/PAS.png">
+                        <h3 id="profile-name">
+                          Pierre-André Svetchine
+                        </h3>
+                        <span id="profile-description">
+                          Coworker
+                        </span>
+                      </div>
+                      <ion-list>
+
+                      <!-- Accordion list -->
+                      <div ng-repeat="group in groups">
+                        <ion-item class="item-stable"
+                                  ng-click="toggleGroup(group)"
+                                  ng-class="{active: isGroupShown(group)}">
+                            <i class="icon" ng-class="getIcon(group)"></i>
+                          &nbsp;
+                          {{group.name}}
+                        </ion-item>
+                        <ion-item class="item-accordion"
+                                  ng-repeat="item in group.items"
+                                  ng-show="isGroupShown(group)">
+                          {{item}}
+                        </ion-item>
+                        </div>
+
+                        
+                      <div ng-controller="PieChartCtrl" class="graph" id="top-graph">
+
+                        <canvas tc-chartjs-pie chart-options="options" chart-data="data" height="100"></canvas>
+
+                      </div>
+
+                      <div ng-controller="BarChartCtrl" class="graph" id="bottom-graph">
+
+                        <canvas tc-chartjs-bar chart-options="options" chart-data="data" height="200"></canvas>
+
+                      </div>
+
+
+                  </div>
+                  </ion-content>
+
+        </ion-tab>
+
+        <ion-tab title="Settings" icon-on="ion-ios-settings-strong" icon-off="ion-ios-settings">
+          <ion-content has-bouncing='true' >
+            <div class="user-settings">
+            <h1> Réglages profil </h1>
+
+            </div>
+          </ion-content>
+        </ion-tab>
+      </ion-tabs>
+
+  </ion-content>
+
+</ion-view>
