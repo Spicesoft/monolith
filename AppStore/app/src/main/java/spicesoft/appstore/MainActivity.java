@@ -35,6 +35,7 @@ import spicesoft.appstore.Model.App;
 import spicesoft.appstore.Model.ServerInfo;
 import spicesoft.appstore.Model.Tenant;
 import spicesoft.appstore.NFC.NfcResponse;
+import spicesoft.appstore.util.WebViewTool;
 
 
 
@@ -44,10 +45,10 @@ public class MainActivity extends KioskModeNfcActivity implements AsyncResponse,
     private static final String TAG = "MainActivity";
 
     public static final String PREFS_NAME = "spicesoft.appstore";
-    private String AppStoreUrl = "http://spicesoft.cowork.io:8000/logout/?next=/webapps/";
+    //private String AppStoreUrl = "https://beee394.ngrok.com/logout/?next=/webapps/";
+    private String AppStoreUrl = "https://chickendesk.lite-staging.tandoori.pro/logout/?next=/webapps/";
 
     private Tenant tenant = new Tenant();
-
 
     private WebView mWebView;
     private getAppInfoFromServer appinfo;
@@ -85,6 +86,7 @@ public class MainActivity extends KioskModeNfcActivity implements AsyncResponse,
 
         enableFullKioskMode();
         mWebView = (WebView) findViewById(R.id.web_content);
+        new WebViewTool(this).init(mWebView);
 
         mWebView.setWebViewClient(new WebViewClient() {
 
@@ -134,7 +136,10 @@ public class MainActivity extends KioskModeNfcActivity implements AsyncResponse,
         settings = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
         tenant.setName(settings.getString("tenant_name", null));
         tenant.setDomain(settings.getString("tenant_domain_url", null));
-        AppStoreUrl = tenant.getDomain() + "/logout/?next=/webapps/";
+
+        //if(!(DEBUG)){
+        //    AppStoreUrl = tenant.getDomain() + "/logout/?next=/webapps/";
+        //}
 
         ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo netInfo = cm.getActiveNetworkInfo();

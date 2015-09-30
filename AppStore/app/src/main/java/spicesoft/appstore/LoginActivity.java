@@ -66,6 +66,7 @@ public class LoginActivity extends KioskModeActivity implements TenantsResponse{
             tempTenantName = tempTenantName.replace(" ", "");
 
             Log.d("postGetTenant", userTenant + " / "+ tempTenantName);
+
             if(tempTenantName.equals(userTenant)){
                 Toast.makeText(this, "Tenant found", Toast.LENGTH_SHORT).show();
                 EditText editText = (EditText) findViewById(R.id.editText);

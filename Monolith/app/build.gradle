@@ -1,14 +1,14 @@
 apply plugin: 'com.android.application'
 
 android {
-    signingConfigs {
+    /*signingConfigs {
         debug {
             keyAlias 'spicesoft_key'
             keyPassword 'azerty'
             storeFile file('/Users/Vincent/AndroidStudioProjects/spicesoft_keystore.jks`')
             storePassword 'azerty'
         }
-    }
+    }*/
     compileSdkVersion 22
     buildToolsVersion "22.0.1"
     defaultConfig {

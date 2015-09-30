@@ -56,7 +56,6 @@ public class MainActivity extends KioskModeNfcActivity implements NfcResponse{
     public static final int MAX_JITTER = 10; //Spread the update on N minutes
 
     private static final String ERROR_URL = "file:///android_asset/error.html";
-    private static final String TEST_URL = "http://spicesoft.cowork.io:8000/login/?next=/webapps/meeting_room/";
 
     private Activity activity;
 
